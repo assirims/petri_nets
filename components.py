@@ -1,6 +1,5 @@
 import uuid
 
-
 class Direction(object):
     PLACE_TO_TRANSITION = 1
     TRANSITION_TO_PLACE = 2
@@ -15,11 +14,15 @@ class Place(object):
 
 class Transition(object):
     def __init__(self, connectors_in, connectors_out, priority, id=None, name=uuid.uuid4().get_hex()):
-        self.id = id
-        self.name = name
         self.connectors_in = connectors_in
         self.connectors_out = connectors_out
         self.priority = priority
+        self.id = id
+        self.name = name
+
+    # used by FifoPriorityQueue
+    def __cmp__(self, other):
+        return cmp(self.priority, other.priority)
 
     # check that you can execute transition
     def __is_doable(self):
