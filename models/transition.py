@@ -2,18 +2,6 @@ import uuid
 import json
 
 
-class Direction(object):
-    PLACE_TO_TRANSITION = 1
-    TRANSITION_TO_PLACE = 2
-
-
-class Place(object):
-    def __init__(self, name=uuid.uuid4().get_hex(), id=None, tokens=0):
-        self.id = id
-        self.name = name
-        self.tokens = tokens
-
-
 class Transition(object):
     def __init__(self, connectors_in, connectors_out, priority, id=None, name=uuid.uuid4().get_hex()):
         self.connectors_in = connectors_in
@@ -43,10 +31,3 @@ class Transition(object):
 
     def to_json(self):
         return json.dumps(self, default=lambda obj: obj.__dict__)
-
-
-class Connector(object):
-    def __init__(self, place, direction, weight):
-        self.place = place
-        self.direction = direction
-        self.weight = weight
