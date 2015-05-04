@@ -1,4 +1,6 @@
 import uuid
+import json
+
 
 class Direction(object):
     PLACE_TO_TRANSITION = 1
@@ -38,6 +40,9 @@ class Transition(object):
 
             for connector_out in self.connectors_out:
                 connector_out.place.tokens = connector_out.place.tokens + connector_out.weight
+
+    def to_json(self):
+        return json.dumps(self, default=lambda obj: obj.__dict__)
 
 
 class Connector(object):
