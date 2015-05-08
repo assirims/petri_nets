@@ -15,14 +15,14 @@ class Transition(object):
         return cmp(self.priority, other.priority)
 
     # check that you can execute transition
-    def __is_doable(self):
+    def is_doable(self):
         for connector in self.connectors_in:
             if connector.weight > connector.place.tokens:
                 return False
         return True
 
     def run_transition(self):
-        if self.__is_doable():
+        if self.is_doable():
             for connector_in in self.connectors_in:
                 connector_in.place.tokens = connector_in.place.tokens - connector_in.weight
 
