@@ -1,3 +1,6 @@
+from lib.exceptions import EmptyQueueError
+
+
 class FifoPriorityQueue(object):
 
     def __init__(self):
@@ -15,7 +18,10 @@ class FifoPriorityQueue(object):
         self.queue.insert(index, item)
 
     def get(self):
-        return self.queue.pop(0)
+        try:
+            return self.queue.pop(0)
+        except IndexError:
+            raise EmptyQueueError()
 
     def is_empty(self):
         return not self.queue

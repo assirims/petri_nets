@@ -12,6 +12,15 @@
     <div id="paper" class="paper">
     </div>
 
+    <!--fetch data from webserver-->
+    <script>
+        ws = new WebSocket("ws://localhost:8888/websocket");
+        ws.onmessage = function(e) {
+            alert('message received: ' + e.data);
+        };
+    </script>
+
+
     <script>
         var graph = new joint.dia.Graph;
         var paper = new joint.dia.Paper({
