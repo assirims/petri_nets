@@ -2,7 +2,7 @@ import numpy
 from utils.helper import Helper
 
 
-class IncidenceMatrix(object):
+class IncidenceMatrixCreator(object):
     def __init__(self, places, transitions, connectors):
         self.places = places
         self.transitions = transitions
@@ -15,15 +15,11 @@ class IncidenceMatrix(object):
         incidence_matrix_in = self.__initialize_incidence_matrix()
         incidence_matrix_out = self.__initialize_incidence_matrix()
 
-        # objects in python are passed by reference
-        Helper.generate_ids(self.transitions)
-        Helper.generate_ids(self.places)
-
         for transition in self.transitions:
-            for connector_in in transition.connectors_in:
-                incidence_matrix_in[connector_in.place.id][transition.id] = connector_in.weight
-
             for connector_out in transition.connectors_out:
-                incidence_matrix_out[connector_out.place.id][transition.id] = connector_out.weight
+                incidence_matrix_in[connector_out.place.id-1][transition.id-1] = connector_out.weight
+
+            for connector_in in transition.connectors_in:
+                incidence_matrix_out[connector_in.place.id-1][transition.id-1] = connector_in.weight
 
         return incidence_matrix_in - incidence_matrix_out

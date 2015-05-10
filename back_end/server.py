@@ -3,7 +3,7 @@ import tornado.ioloop
 import tornado.web
 import tornado.websocket
 from lib.json_to_object_parser import JsonToObjectParser
-from main import Main
+from main import Main, RequestType
 
 
 class Server(tornado.websocket.WebSocketHandler):
@@ -18,15 +18,15 @@ class Server(tornado.websocket.WebSocketHandler):
         action_type = message_dict["type"]
         receive_data = message_dict["data"]
 
-        if action_type is Main.START:
+        if action_type is RequestType.START:
             parsed_objects = JsonToObjectParser()
             parsed_objects.create_graph_structure(receive_data)
             self.main = Main(parsed_objects.places, parsed_objects.transitions, parsed_objects.connectors)
             return self.write_message(self.main.start_simulation())
-        elif action_type is Main.SIMULATE:
+        elif action_type is RequestType.SIMULATE:
             return self.write_message(self.main.simulate())
-        elif action_type is Main.GRAPH_FEATURES:
-            pass
+        elif action_type is RequestType.GRAPH_FEATURES:
+            return self.write_message(self.main.get_graph_features())
 
     def on_close(self):
         pass

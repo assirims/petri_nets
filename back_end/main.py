@@ -1,16 +1,20 @@
 from lib.exceptions import EmptyQueueError
 from lib.fifo_priority_queue import FifoPriorityQueue
-from models.connector import Connector, Direction
-from models.place import Place
-from models.transition import Transition
+from utils.incidence_matrix_creator import IncidenceMatrixCreator
 
 
-class Main(object):
-
+class RequestType(object):
     START = 1
     SIMULATE = 2
     GRAPH_FEATURES = 3
     END = 4
+
+
+class GraphFeatureType(object):
+    INCIDENCE_MATRIX = 1
+
+
+class Main(object):
 
     def __init__(self, places, transitions, connectors):
         self.places = places
@@ -18,11 +22,10 @@ class Main(object):
         self.connectors = connectors
 
     def __json_type_wrapper(self, type, data=None):
-        content = {"type": type, "data": data}
         return '{"type": %s, "data": %s}' % (type, data)
 
     def start_simulation(self):
-        return '{"type": %s, "data": ""}' % Main.START
+        return '{"type": %s, "data": ""}' % RequestType.START
 
     def simulate(self):
         self.queue = FifoPriorityQueue()
@@ -34,9 +37,21 @@ class Main(object):
             transition = self.queue.get()
             # print transition.name
             transition.run_transition()
-            return self.__json_type_wrapper(Main.SIMULATE, transition.to_json())
+            return self.__json_type_wrapper(RequestType.SIMULATE, transition.to_json())
         except EmptyQueueError:
-            return self.__json_type_wrapper(Main.END)
+            return self.__json_type_wrapper(RequestType.END)
+
+    def get_graph_features(self):
+        data = {
+            GraphFeatureType.INCIDENCE_MATRIX: self.__get_incidence_matrix()
+        }
+
+        return self.__json_type_wrapper(RequestType.GRAPH_FEATURES, data)
+
+    def __get_incidence_matrix(self):
+        incidence_matrix_creator = IncidenceMatrixCreator(self.places, self.transitions, self.connectors)
+        return incidence_matrix_creator.create_incidence_matrix()
+
 
 # Example data needed for faster development process
 #
