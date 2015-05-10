@@ -4,7 +4,8 @@ class Direction(object):
 
 
 class Connector(object):
-    def __init__(self, place, direction, weight):
+    def __init__(self, id, place, direction, weight):
+        self.id = id
         self.place = place
         self.direction = direction
         self.weight = weight
