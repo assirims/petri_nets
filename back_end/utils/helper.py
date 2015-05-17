@@ -7,12 +7,18 @@ class Helper(object):
 
     @staticmethod
     def find_place_by_id(places, id):
-        for place in places:
-            if place.id == id:
-                return place
+        return Helper.find_element_by_id(places, id)
 
     @staticmethod
     def find_connector_by_id(connectors, id):
-        for connector in connectors:
-            if connector.id == id:
-                return connector
+        return Helper.find_element_by_id(connectors, id)
+
+    @staticmethod
+    def find_transition_by_id(transitions, id):
+        return Helper.find_element_by_id(transitions, id)
+
+    @staticmethod
+    def find_element_by_id(elements, id):
+        for element in elements:
+            if element.id == id:
+                return element

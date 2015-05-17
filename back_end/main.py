@@ -1,5 +1,6 @@
 from lib.exceptions import EmptyQueueError
 from lib.fifo_priority_queue import FifoPriorityQueue
+from utils.coverability_graph import CoverabilityGraph
 from utils.incidence_matrix_creator import IncidenceMatrixCreator
 
 
@@ -12,7 +13,8 @@ class RequestType(object):
 
 class GraphFeatureType(object):
     INCIDENCE_MATRIX = 1
-
+    LIVE_TRANSITIONS = 2
+    COVERABILITY_GRAPH = 3
 
 class Main(object):
 
@@ -43,7 +45,9 @@ class Main(object):
 
     def get_graph_features(self):
         data = {
-            GraphFeatureType.INCIDENCE_MATRIX: self.__get_incidence_matrix()
+            GraphFeatureType.INCIDENCE_MATRIX: self.__get_incidence_matrix().tolist(),
+            GraphFeatureType.LIVE_TRANSITIONS: self.__get_live_transitions_ids(),
+            GraphFeatureType.COVERABILITY_GRAPH: self.__get_coverability_graph()
         }
 
         return self.__json_type_wrapper(RequestType.GRAPH_FEATURES, data)
@@ -52,7 +56,16 @@ class Main(object):
         incidence_matrix_creator = IncidenceMatrixCreator(self.places, self.transitions, self.connectors)
         return incidence_matrix_creator.create_incidence_matrix()
 
+    def __get_live_transitions_ids(self):
+        live_transitions_ids = []
+        for transition in self.transitions:
+            if transition.is_doable():
+                live_transitions_ids.append(transition.id)
+        return live_transitions_ids
 
+    def __get_coverability_graph(self):
+        coverability_graph = CoverabilityGraph(self.transitions)
+        return coverability_graph.get_coverability_graph()
 # Example data needed for faster development process
 #
 # p1 = Place(name='p1', id=1, tokens=1)
