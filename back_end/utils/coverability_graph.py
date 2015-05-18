@@ -6,25 +6,29 @@ class CoverabilityGraph(object):
     def __init__(self, transitions):
         self.transitions = deepcopy(transitions)
 
+    # states_list contains tuples: (id_state, parent_id_state, [net states])
     def _create_coverability_graph(self):
-        queue = [self.transitions]
-        states_list = [self._get_network_state(self.transitions)]
-        stop_condition = 100
-        i = 0
-        while queue and i < stop_condition:
-            i += 1
-            transitions = queue.pop(0)
+        queue = [(0, 0, self.transitions)]
+        states_list = [(0, 0, self._get_network_state(self.transitions))]
+        stop_condition = 10
+        state_id = 0
+        while queue and state_id < stop_condition:
+            state = queue.pop(0)
+            parent_state_id = state[0]
+            transitions = state[2]
+
             transitions_ids_to_do = []
             for transition in transitions:
                 if transition.is_doable():
                     transitions_ids_to_do.append(transition.id)
 
             for transition_id in transitions_ids_to_do:
+                state_id += 1
                 new_transitions_state = deepcopy(transitions)
                 transition = Helper.find_transition_by_id(new_transitions_state, transition_id)
                 transition.run_transition()
-                states_list.append(self._get_network_state(new_transitions_state))
-                queue.append(new_transitions_state)
+                states_list.append((state_id, parent_state_id, self._get_network_state(new_transitions_state)))
+                queue.append((state_id, parent_state_id, new_transitions_state))
 
         return states_list
 
