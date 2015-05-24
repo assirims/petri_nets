@@ -1,5 +1,4 @@
-from lib.exceptions import EmptyQueueError
-from lib.fifo_priority_queue import FifoPriorityQueue
+import random
 from utils.coverability_graph import CoverabilityGraph
 from utils.incidence_matrix_creator import IncidenceMatrixCreator
 
@@ -16,6 +15,7 @@ class GraphFeatureType(object):
     LIVE_TRANSITIONS = 2
     COVERABILITY_GRAPH = 3
 
+
 class Main(object):
 
     def __init__(self, places, transitions, connectors):
@@ -30,18 +30,12 @@ class Main(object):
         return '{"type": %s, "data": ""}' % RequestType.START
 
     def simulate(self):
-        self.queue = FifoPriorityQueue()
-        for transition in self.transitions:
-            if transition.is_doable():
-                self.queue.put(transition)
-
-        try:
-            transition = self.queue.get()
-            # print transition.name
+        transition = random.sample(self.transitions, 1)[0]
+        if transition.is_doable():
             transition.run_transition()
             return self.__json_type_wrapper(RequestType.SIMULATE, transition.to_json())
-        except EmptyQueueError:
-            return self.__json_type_wrapper(RequestType.END)
+        else:
+            return self.__json_type_wrapper(RequestType.SIMULATE, transition.to_json())
 
     def get_graph_features(self):
         data = {
