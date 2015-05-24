@@ -1,0 +1,47 @@
+ws.send(JSON.stringify({"type":1,
+ "data": {
+     "connectors": [
+         {"id": 1, "place_id": 1, "direction": 1, "weight":1},
+         {"id": 2, "place_id": 2, "direction": 2, "weight":1},
+         {"id": 3, "place_id": 2, "direction": 1, "weight":1},
+         {"id": 4, "place_id": 1, "direction": 2, "weight":1},
+         {"id": 5, "place_id": 3, "direction": 2, "weight":2},
+         {"id": 6, "place_id": 3, "direction": 1, "weight":1},
+         {"id": 7, "place_id": 4, "direction": 2, "weight":3},
+         {"id": 8, "place_id": 3, "direction": 1, "weight":1},
+         {"id": 9, "place_id": 5, "direction": 2, "weight":1}
+     ],
+     "places": [
+         {"id":1, "name":"p1", "tokens":1},
+         {"id":2, "name":"p2", "tokens":0},
+         {"id":3, "name":"p3", "tokens":1},
+         {"id":4, "name":"p4", "tokens":0},
+         {"id":5, "name":"p5", "tokens":0}
+     ],
+     "transitions": [
+         {"connectors_in_ids": [1],
+          "connectors_out_ids": [2],
+          "priority": 5,
+          "id": 1,
+          "name": "t1"},
+         {"connectors_in_ids": [3],
+          "connectors_out_ids": [4,5],
+          "priority": 1,
+          "id": 2,
+          "name": "t2"},
+         {"connectors_in_ids": [6],
+          "connectors_out_ids": [7],
+          "priority": 2,
+          "id": 3,
+          "name": "t3"},
+         {"connectors_in_ids": [8],
+          "connectors_out_ids": [9],
+          "priority": 1,
+          "id": 4,
+          "name": "t4"}
+     ]
+ }}))
+
+ ws.send(JSON.stringify({"type": 2, "data": ""}))
+
+ ws.send(JSON.stringify({"type": 3, "data": ""}))

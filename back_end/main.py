@@ -1,5 +1,8 @@
 import random
+from lib.exceptions import EmptyQueueError
+from lib.fifo_priority_queue import FifoPriorityQueue
 from utils.coverability_graph import CoverabilityGraph
+from utils.helper import Helper
 from utils.incidence_matrix_creator import IncidenceMatrixCreator
 
 
@@ -32,8 +35,12 @@ class Main(object):
     def simulate(self):
         transition = random.sample(self.transitions, 1)[0]
         if transition.is_doable():
-            transition.run_transition()
-            return self.__json_type_wrapper(RequestType.SIMULATE, transition.to_json())
+            priority_queue = Helper.get_competitive_transitions_priority_queue(self.transitions, transition)
+            if transition is priority_queue.get():
+                transition.run_transition()
+                return self.__json_type_wrapper(RequestType.SIMULATE, transition.to_json())
+            else:
+                return self.__json_type_wrapper(RequestType.SIMULATE, transition.to_json())
         else:
             return self.__json_type_wrapper(RequestType.SIMULATE, transition.to_json())
 
