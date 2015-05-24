@@ -20,7 +20,9 @@ class CoverabilityGraph(object):
             transitions_ids_to_do = []
             for transition in transitions:
                 if transition.is_doable():
-                    transitions_ids_to_do.append(transition.id)
+                    priority_queue = Helper.get_competitive_transitions_priority_queue(transitions, transition)
+                    if priority_queue.get() is transition:
+                        transitions_ids_to_do.append(transition.id)
 
             for transition_id in transitions_ids_to_do:
                 state_id += 1
