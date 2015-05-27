@@ -65,4 +65,4 @@ class Main(object):
 
     def __get_reachability_graph(self):
         reachability_graph = ReachabilityGraph(self.transitions)
-        return reachability_graph.get_reachability_graph()
+        return reachability_graph.get_graph()
