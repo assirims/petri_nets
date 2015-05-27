@@ -1,4 +1,4 @@
-from lib.exceptions import EmptyQueueError
+from utils.exceptions import EmptyQueueError
 
 
 class FifoPriorityQueue(object):

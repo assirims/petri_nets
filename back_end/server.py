@@ -1,8 +1,10 @@
 import ast
+
 import tornado.ioloop
 import tornado.web
 import tornado.websocket
-from lib.json_to_object_parser import JsonToObjectParser
+
+from utils.json_to_object_parser import JsonToObjectParser
 from main import Main, RequestType
 
 

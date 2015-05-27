@@ -1,7 +1,8 @@
 import random
-from utils.reachability_graph import ReachabilityGraph
-from utils.helper import Helper
-from utils.incidence_matrix_creator import IncidenceMatrixCreator
+
+from lib.reachability_graph import ReachabilityGraph
+from lib.helper import Helper
+from lib.incidence_matrix_creator import IncidenceMatrixCreator
 
 
 class RequestType(object):

@@ -1,7 +1,7 @@
 from models.place import Place
 from models.transition import Transition
 from models.connector import Connector
-from utils.helper import Helper
+from lib.helper import Helper
 
 
 class JsonToObjectParser(object):

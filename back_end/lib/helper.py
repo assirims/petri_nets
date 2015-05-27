@@ -1,4 +1,4 @@
-from lib.fifo_priority_queue import FifoPriorityQueue
+from utils.fifo_priority_queue import FifoPriorityQueue
 
 
 class Helper(object):

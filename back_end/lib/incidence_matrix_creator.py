@@ -1,5 +1,4 @@
 import numpy
-from utils.helper import Helper
 
 
 class IncidenceMatrixCreator(object):

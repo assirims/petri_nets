@@ -1,5 +1,6 @@
 from copy import deepcopy
-from utils.helper import Helper
+
+from lib.helper import Helper
 
 
 class ReachabilityGraph(object):
