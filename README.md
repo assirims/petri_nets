@@ -23,3 +23,9 @@ $ workon petri_net
 $ cd <path_to_project>/back_end/
 $ pip install -r requirements.txt
 ```
+
+Run server:
+
+```sh
+$ python server.py
+```
