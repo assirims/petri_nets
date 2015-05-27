@@ -1,4 +1,5 @@
 import random
+from lib.coverability_graph import CoverabilityGraph
 
 from lib.reachability_graph import ReachabilityGraph
 from lib.helper import Helper
@@ -16,6 +17,7 @@ class GraphFeatureType(object):
     INCIDENCE_MATRIX = 1
     LIVE_TRANSITIONS = 2
     REACHABILITY_GRAPH = 3
+    COVERABILITY_GRAPH = 4
 
 
 class Main(object):
@@ -47,7 +49,8 @@ class Main(object):
         data = {
             GraphFeatureType.INCIDENCE_MATRIX: self.__get_incidence_matrix().tolist(),
             GraphFeatureType.LIVE_TRANSITIONS: self.__get_live_transitions_ids(),
-            GraphFeatureType.REACHABILITY_GRAPH: self.__get_reachability_graph()
+            GraphFeatureType.REACHABILITY_GRAPH: self.__get_reachability_graph(),
+            GraphFeatureType.COVERABILITY_GRAPH: self.__get_coverability_graph()
         }
 
         return self.__json_type_wrapper(RequestType.GRAPH_FEATURES, data)
@@ -66,3 +69,7 @@ class Main(object):
     def __get_reachability_graph(self):
         reachability_graph = ReachabilityGraph(self.transitions)
         return reachability_graph.get_graph()
+
+    def __get_coverability_graph(self):
+        coverability_graph = CoverabilityGraph(self.transitions)
+        return coverability_graph.get_graph()

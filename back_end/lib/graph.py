@@ -20,6 +20,12 @@ class Graph(object):
                 return state
         return None
 
+    def _find_state_by_id(self, states_list, state_id):
+        for state in states_list:
+            if state[0] == state_id:
+                return state
+        return None
+
     def _get_network_state(self, transitions):
         places_ids_and_tokens = {}
         for transition in transitions:
