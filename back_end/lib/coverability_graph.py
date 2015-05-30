@@ -4,10 +4,10 @@ from lib.helper import Helper
 
 
 class CoverabilityGraph(Graph):
-    # states_list contains tuples: (id_state, parent_id_state, [net states], transition_id)
+    # states_list contains tuples: (id_state, parent_id_state, [net states], {state_id: transition_id}, transition_id)
     def _create_coverability_graph(self):
         queue = [(0, 0, self.transitions)]
-        states_list = [(0, 0, self._get_network_state(self.transitions), [])]
+        states_list = [(0, 0, self._get_network_state(self.transitions), {}, None)]
         stop_condition = 15
         state_id = 0
         while queue and state_id < stop_condition:
@@ -29,7 +29,7 @@ class CoverabilityGraph(Graph):
                 new_network_state = self._get_network_state(new_transitions_state)
 
                 state_id += 1
-                states_list_element = (state_id, parent_state_id, new_network_state, [])
+                states_list_element = (state_id, parent_state_id, new_network_state, {}, transition.id)
 
                 predecessors = self._get_predecessors(states_list, states_list_element)
                 self._check_infinite_state(predecessors, new_network_state)
@@ -39,7 +39,7 @@ class CoverabilityGraph(Graph):
                     state_id -= 1
                     id = found_state[0]
                     parent_network_state = self._find_state_by_id(states_list, parent_state_id)
-                    parent_network_state[3].append(id)
+                    parent_network_state[3][id] = transition.id
                 else:
                     states_list.append(states_list_element)
                     queue.append((state_id, parent_state_id, new_transitions_state))

@@ -1,4 +1,5 @@
 import random
+import json
 from lib.coverability_graph import CoverabilityGraph
 
 from lib.reachability_graph import ReachabilityGraph
@@ -27,11 +28,14 @@ class Main(object):
         self.transitions = transitions
         self.connectors = connectors
 
-    def __json_type_wrapper(self, type, data=None):
-        return '{"type": %s, "data": %s}' % (type, data)
+    def __json_type_wrapper(self, type, data=None, partially_converted_to_json=False):
+        if partially_converted_to_json:
+            return json.dumps({"type": type, "data": json.loads(data)})
+
+        return json.dumps({"type": type, "data": data})
 
     def start_simulation(self):
-        return '{"type": %s, "data": ""}' % RequestType.START
+        return self.__json_type_wrapper(RequestType.START)
 
     def simulate(self):
         transition = random.sample(self.transitions, 1)[0]
@@ -39,11 +43,8 @@ class Main(object):
             priority_queue = Helper.get_competitive_transitions_priority_queue(self.transitions, transition)
             if transition is priority_queue.get():
                 transition.run_transition()
-                return self.__json_type_wrapper(RequestType.SIMULATE, transition.to_json())
-            else:
-                return self.__json_type_wrapper(RequestType.SIMULATE, transition.to_json())
-        else:
-            return self.__json_type_wrapper(RequestType.SIMULATE, transition.to_json())
+
+        return self.__json_type_wrapper(RequestType.SIMULATE, transition.to_json(), True)
 
     def get_graph_features(self):
         data = {
