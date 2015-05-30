@@ -8,7 +8,7 @@ class ReachabilityGraph(Graph):
     def _create_reachability_graph(self):
         queue = [(0, 0, self.transitions)]
         states_list = [(0, 0, self._get_network_state(self.transitions), [])]
-        stop_condition = 10
+        stop_condition = 15
         state_id = 0
         while queue and state_id < stop_condition:
             state = queue.pop(0)

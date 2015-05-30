@@ -1,6 +1,6 @@
 class Direction(object):
-    PLACE_TO_TRANSITION = 1
-    TRANSITION_TO_PLACE = 2
+    PLACE_TO_TRANSITION = 0
+    TRANSITION_TO_PLACE = 1
 
 
 class Connector(object):

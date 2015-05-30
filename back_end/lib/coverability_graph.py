@@ -4,11 +4,11 @@ from lib.helper import Helper
 
 
 class CoverabilityGraph(Graph):
-    # states_list contains tuples: (id_state, parent_id_state, [net states])
+    # states_list contains tuples: (id_state, parent_id_state, [net states], transition_id)
     def _create_coverability_graph(self):
         queue = [(0, 0, self.transitions)]
         states_list = [(0, 0, self._get_network_state(self.transitions), [])]
-        stop_condition = 10
+        stop_condition = 15
         state_id = 0
         while queue and state_id < stop_condition:
             state = queue.pop(0)
@@ -32,7 +32,6 @@ class CoverabilityGraph(Graph):
                 states_list_element = (state_id, parent_state_id, new_network_state, [])
 
                 predecessors = self._get_predecessors(states_list, states_list_element)
-                print predecessors
                 self._check_infinite_state(predecessors, new_network_state)
                 found_state = self._find_state_based_on_network_state(states_list, new_network_state)
 
@@ -70,15 +69,12 @@ class CoverabilityGraph(Graph):
             if predecessor[2] != network_state:
                 exist = True
                 for i in xrange(len(predecessor[2])):
-                    if predecessor[2][i] > network_state[i]:
+                    if predecessor[2][i] > network_state[i] and predecessor[2][i] != float("inf"):
                         exist = False
                         break
                 if exist:
-                    print 'exist'
                     for i in xrange(len(predecessor[2])):
-                        print predecessor[2][i], network_state[i]
-                        if predecessor[2][i] < network_state[i]:
-                            print 'zmieniam'
+                        if predecessor[2][i] < network_state[i] or predecessor[2][i] == float("inf"):
                             network_state[i] = float("inf")
                     break
 
