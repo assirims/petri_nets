@@ -23,10 +23,10 @@ class GraphFeatureType(object):
 
 class Main(object):
 
-    def __init__(self, places, transitions, connectors):
+    def __init__(self, places, transitions, links):
         self.places = places
         self.transitions = transitions
-        self.connectors = connectors
+        self.links = links
 
     def __json_type_wrapper(self, type, data=None, partially_converted_to_json=False):
         if partially_converted_to_json:
@@ -57,7 +57,7 @@ class Main(object):
         return self.__json_type_wrapper(RequestType.GRAPH_FEATURES, data)
 
     def __get_incidence_matrix(self):
-        incidence_matrix_creator = IncidenceMatrixCreator(self.places, self.transitions, self.connectors)
+        incidence_matrix_creator = IncidenceMatrixCreator(self.places, self.transitions, self.links)
         return incidence_matrix_creator.create_incidence_matrix()
 
     def __get_live_transitions_ids(self):

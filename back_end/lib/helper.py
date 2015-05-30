@@ -13,8 +13,8 @@ class Helper(object):
         return Helper.find_element_by_id(places, id)
 
     @staticmethod
-    def find_connector_by_id(connectors, id):
-        return Helper.find_element_by_id(connectors, id)
+    def find_link_by_id(links, id):
+        return Helper.find_element_by_id(links, id)
 
     @staticmethod
     def find_transition_by_id(transitions, id):
@@ -30,8 +30,8 @@ class Helper(object):
     def get_transitions_with_input_place(transitions, place):
         transitions_with_place = []
         for transition in transitions:
-            for connector_in in transition.connectors_in:
-                if connector_in.place is place:
+            for link_in in transition.links_in:
+                if link_in.place is place:
                     transitions_with_place.append(transition)
         return transitions_with_place
 
@@ -40,8 +40,8 @@ class Helper(object):
         priority_queue = FifoPriorityQueue()
         priority_queue.put(transition)
 
-        connectors_in = transition.connectors_in
-        places_in = [conn_in.place for conn_in in connectors_in]
+        links_in = transition.links_in
+        places_in = [conn_in.place for conn_in in links_in]
         for place in places_in:
             for trans in Helper.get_transitions_with_input_place(transitions, place):
                 if trans.is_doable():

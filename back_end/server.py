@@ -10,7 +10,7 @@ from main import Main, RequestType
 
 class Server(tornado.websocket.WebSocketHandler):
     def open(self):
-        self.write_message("Hello, world")
+        self.write_message("Petri net simulation")
 
     def on_message(self, message):
         message_dict = ast.literal_eval(message)
@@ -22,8 +22,10 @@ class Server(tornado.websocket.WebSocketHandler):
 
         if action_type is RequestType.START:
             parsed_objects = JsonToObjectParser()
+            print '----Dane:', receive_data, '--------'
             parsed_objects.create_graph_structure(receive_data)
-            self.main = Main(parsed_objects.places, parsed_objects.transitions, parsed_objects.connectors)
+            self.main = Main(parsed_objects.places, parsed_objects.transitions, parsed_objects.links)
+            print parsed_objects.places
             return self.write_message(self.main.start_simulation())
         elif action_type is RequestType.SIMULATE:
             return self.write_message(self.main.simulate())
@@ -53,7 +55,7 @@ if __name__ == "__main__":
 
 {"type":1,
  "data": {
-     "connectors": [
+     "links": [
          {"id": 1, "place_id": 1, "direction": 1, "weight":1},
          {"id": 2, "place_id": 2, "direction": 2, "weight":1},
          {"id": 3, "place_id": 2, "direction": 1, "weight":1},
@@ -69,18 +71,18 @@ if __name__ == "__main__":
          {"id":4, "name":"p4", "tokens":0}
      ],
      "transitions": [
-         {"connectors_in_ids": [1],
-          "connectors_out_ids": [2],
+         {"links_in_ids": [1],
+          "links_out_ids": [2],
           "priority": 5,
           "id": 1,
           "name": "t1"},
-         {"connectors_in_ids": [3],
-          "connectors_out_ids": [4,5],
+         {"links_in_ids": [3],
+          "links_out_ids": [4,5],
           "priority": 1,
           "id": 2,
           "name": "t2"},
-         {"connectors_in_ids": [6],
-          "connectors_out_ids": [7],
+         {"links_in_ids": [6],
+          "links_out_ids": [7],
           "priority": 2,
           "id": 3,
           "name": "t3"}

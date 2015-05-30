@@ -1,6 +1,6 @@
 import unittest
 from main import Main
-from models.connector import Connector, Direction
+from models.link import Connector, Direction
 from models.place import Place
 from models.transition import Transition
 

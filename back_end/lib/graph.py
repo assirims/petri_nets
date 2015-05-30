@@ -29,11 +29,11 @@ class Graph(object):
     def _get_network_state(self, transitions):
         places_ids_and_tokens = {}
         for transition in transitions:
-            for conn_in in transition.connectors_in:
+            for conn_in in transition.links_in:
                 if conn_in.place.id not in places_ids_and_tokens:
                     places_ids_and_tokens[conn_in.place.id] = conn_in.place.tokens
 
-            for conn_out in transition.connectors_out:
+            for conn_out in transition.links_out:
                 if conn_out.place.id not in places_ids_and_tokens:
                     places_ids_and_tokens[conn_out.place.id] = conn_out.place.tokens
 
