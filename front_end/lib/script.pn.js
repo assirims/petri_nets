@@ -35,12 +35,12 @@ var link = [];
 
 link[0] = new pn.Link({ source: { id: trans[0].id, selector: '.root' }, target: { id: place[0].id, selector: '.root' }, direction: 1 ,weight: 1 });
 link[1] = new pn.Link({ source: { id: place[0].id, selector: '.root' }, target: { id: trans[1].id, selector: '.root' }, direction: 0 ,weight: 1 });
-link[2] = new pn.Link({ source: { id: trans[1].id, selector: '.root' }, target: { id: place[1].id, selector: '.root' }, direction: 1 ,weight: 3 });
-link[3] = new pn.Link({ source: { id: place[1].id, selector: '.root' }, target: { id: trans[0].id, selector: '.root' }, direction: 0, weight: 3 });
+link[2] = new pn.Link({ source: { id: trans[1].id, selector: '.root' }, target: { id: place[1].id, selector: '.root' }, direction: 1 ,weight: 1 });
+link[3] = new pn.Link({ source: { id: place[1].id, selector: '.root' }, target: { id: trans[0].id, selector: '.root' }, direction: 0, weight: 1 });
 link[4] = new pn.Link({ source: { id: trans[1].id, selector: '.root' }, target: { id: place[2].id, selector: '.root' }, direction: 1, weight: 1 });
-link[5] = new pn.Link({ source: { id: place[2].id, selector: '.root' }, target: { id: trans[2].id, selector: '.root' }, direction: 0, weight: 2 });
+link[5] = new pn.Link({ source: { id: place[2].id, selector: '.root' }, target: { id: trans[2].id, selector: '.root' }, direction: 0, weight: 1 });
 link[6] = new pn.Link({ source: { id: trans[2].id, selector: '.root' }, target: { id: place[3].id, selector: '.root' }, direction: 1, weight: 1 });
-link[7] = new pn.Link({ source: { id: place[3].id, selector: '.root' }, target: { id: trans[3].id, selector: '.root' }, direction: 0, weight: 5 });
+link[7] = new pn.Link({ source: { id: place[3].id, selector: '.root' }, target: { id: trans[3].id, selector: '.root' }, direction: 0, weight: 1 });
 link[8] = new pn.Link({ source: { id: trans[3].id, selector: '.root' }, target: { id: place[4].id, selector: '.root' }, direction: 1, weight: 1 });
 link[9] = new pn.Link({ source: { id: place[4].id, selector: '.root' }, target: { id: trans[2].id, selector: '.root' }, direction: 0, weight: 1 });
 
@@ -220,6 +220,7 @@ function serializeGraph() {
 
 //deserialize graph
 function deserializeGraph(data) {
+	fireTransition(trans[data.id], 1);
 	data.links_in.concat(data.links_out).forEach(function(e) {
 		e = e.place;
 		place[e.id].prop('tokens', e.tokens);
@@ -265,7 +266,7 @@ deserializeGraph(response.data);
 /*
 attrs: { '.label': { Objectfill: "#000000", font-size: 12, text: "qweety", ref: "rect",ref-x: 0.5,ref-y: -20,text-anchor: "middle" } }
 ref-x: 0.5ref-y: -20text: "t1"text-anchor: "middle"
-
+*/
 function fireTransition(t, sec) {
 
 	var inbound = graph.getConnectedLinks(t, { inbound: true });
@@ -296,7 +297,7 @@ function fireTransition(t, sec) {
 			});
 		}
 	}
-
+/*
 function simulate() {
 	var transitions = [trans[0], trans[1], trans[2], trans[3]];
 	_.each(transitions, function (t) { if (Math.random() < 0.7) fireTransition(t, 1); });
