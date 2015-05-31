@@ -49,10 +49,6 @@ class MainPage(tornado.web.RequestHandler):
 
 root = os.path.dirname(__file__)
 
-handlers = [
-            (r'/static/(.*)', tornado.web.StaticFileHandler, {'path': os.path.join(root, '../front_end')})
-]
-
 application = tornado.web.Application([
     (r"/", MainPage),
     (r"/websocket", Server),
