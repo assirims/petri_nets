@@ -18,53 +18,25 @@ var place = [];
 
 place[0] = new pn.Place({ position: { x: 140, y: 50 }, attrs: { '.label': { text: 'p1' } }, name: 'p1', tokens: 1 });
 place[1] = new pn.Place({ position: { x: 140, y: 260 }, attrs: { '.label': { text: 'p2' } }, name: 'p2', tokens: 2 });
-place[2] = new pn.Place({ position: { x: 350, y: 160 }, attrs: { '.label': { text: 'p3' } }, name: 'p3', tokens: 12 });
-place[3] = new pn.Place({ position: { x: 550, y: 50 }, attrs: { '.label': { text: 'p4' } }, name: 'p4', tokens: 1 });
-place[4] = new pn.Place({ position: { x: 560, y: 260 }, attrs: { '.label': { text: 'p5' } }, name: 'p5', tokens: 3 });
 
 //transitions
 var trans = [];
 
 trans[0] = new pn.Transition({ position: { x: 50, y: 160 }, attrs: { '.label': { text: 't1' } }, name: 't1', priority: 4 });
-trans[1] = new pn.Transition({ position: { x: 270, y: 160 }, attrs: { '.label': { text: 't2' } }, name: 't2', priority: 1 });
-trans[2] = new pn.Transition({ position: { x: 470, y: 160 }, attrs: { '.label': { text: 't3' } }, name: 't3', priority: 3 });
-trans[3] = new pn.Transition({ position: { x: 680, y: 160 }, attrs: { '.label': { text: 't4' } }, name: 't4', priority: 1 });
 
 //links
 var link = [];
 
-link[0] = new pn.Link({ source: { id: trans[0].id, selector: '.root' }, target: { id: place[0].id, selector: '.root' }, direction: 1 ,weight: 1 });
-link[1] = new pn.Link({ source: { id: place[0].id, selector: '.root' }, target: { id: trans[1].id, selector: '.root' }, direction: 0 ,weight: 1 });
-link[2] = new pn.Link({ source: { id: trans[1].id, selector: '.root' }, target: { id: place[1].id, selector: '.root' }, direction: 1 ,weight: 3 });
-link[3] = new pn.Link({ source: { id: place[1].id, selector: '.root' }, target: { id: trans[0].id, selector: '.root' }, direction: 0, weight: 3 });
-link[4] = new pn.Link({ source: { id: trans[1].id, selector: '.root' }, target: { id: place[2].id, selector: '.root' }, direction: 1, weight: 1 });
-link[5] = new pn.Link({ source: { id: place[2].id, selector: '.root' }, target: { id: trans[2].id, selector: '.root' }, direction: 0, weight: 2 });
-link[6] = new pn.Link({ source: { id: trans[2].id, selector: '.root' }, target: { id: place[3].id, selector: '.root' }, direction: 1, weight: 1 });
-link[7] = new pn.Link({ source: { id: place[3].id, selector: '.root' }, target: { id: trans[3].id, selector: '.root' }, direction: 0, weight: 5 });
-link[8] = new pn.Link({ source: { id: trans[3].id, selector: '.root' }, target: { id: place[4].id, selector: '.root' }, direction: 1, weight: 1 });
-link[9] = new pn.Link({ source: { id: place[4].id, selector: '.root' }, target: { id: trans[2].id, selector: '.root' }, direction: 0, weight: 1 });
+link[0] = new pn.Link({ source: { id: place[0].id, selector: '.root' }, target: { id: trans[0].id, selector: '.root' }, direction: 0 ,weight: 1 });
+link[1] = new pn.Link({ source: { id: trans[0].id, selector: '.root' }, target: { id: place[1].id, selector: '.root' }, direction: 1 ,weight: 1 });
 
 //build graph
 graph.addCell([
 	place[0],
 	place[1],
-	place[2],
-	place[3],
-	place[4],
 	trans[0],
-	trans[1],
-	trans[2],
-	trans[3],
 	link[0],
-	link[1],
-	link[2],
-	link[3],
-	link[4],
-	link[5],
-	link[6],
-	link[7],
-	link[8],
-	link[9]
+	link[1]
 	]);
 
 //cursor position
@@ -236,9 +208,12 @@ $(function() {
 
 ws = new WebSocket("ws://localhost:8888/websocket");
 ws.onmessage = function(e) {
-    if (e.data.type == 2) {
-        deserializeGraph(e.data);
-    }
+
+    //var data = JSON.parse(e.data);
+
+    //if (data.type == 2) {
+    //    deserializeGraph(data);
+    //}
     console.log(e.data);
 };
 
