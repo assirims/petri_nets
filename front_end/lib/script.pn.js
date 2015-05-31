@@ -100,13 +100,17 @@ $('#add-trans').change(function() {
 	});
 
 $('#paper').dblclick(function() {
-	//!validate
-	//console.log($('#add-label').val() && getNodeByLabel($('#add-label').val())==null && $('#add-tokens').val());
-	//updatePanel();
+	
+	console.log(Boolean($('#add-label').val().trim()));
+	console.log(getNodeByLabel($('#add-label').val())==null);
+	console.log(Boolean($('#add-content').val().trim()));
+	console.log(Number.isInteger(parseInt($('#add-content').val())));
+	
 	if($('#add-place').attr('checked'))
 		addPlace(cursorPos.x, cursorPos.y, $('#add-label').val(), $('#add-content').val());
 	else
 		addTrans(cursorPos.x, cursorPos.y, $('#add-label').val(), $('#add-content').val());
+	updatePanel();
 	});
 
 //get node
@@ -140,9 +144,8 @@ function getNodeIndex(id) {
 
 //delete node
 function deleteNode(id) {
-	//!
 	getNodeById(id).remove();
-	array.splice(index, array.indexOf(5));
+	place.splice(place.indexOf(getNodeById(id)), 1);
 	updatePanel();
 	}
 
@@ -183,6 +186,25 @@ function updatePanel() {
 
 	trans.forEach(function(e) {
 		$('#link-trans, #delete-list optgroup[label=Transitions]').append($('<option>', {value: e.id, text: e.attr('.label').text}));
+		});
+	}
+	
+//fire transition
+function fireTransition(trans, sec) {
+	var inbound = graph.getConnectedLinks(trans, { inbound: true });
+	var outbound = graph.getConnectedLinks(trans, { outbound: true });
+	
+	var placesBefore = _.map(inbound, function (link) { return graph.getCell(link.get('source').id); });
+	var placesAfter = _.map(outbound, function (link) { return graph.getCell(link.get('target').id); });
+	
+	_.each(placesBefore, function (p) {
+		var link = _.find(inbound, function (l) { return l.get('source').id === p.id; });
+		paper.findViewByModel(link).sendToken(V('circle', { r: 5, fill: 'red' }).node, sec * 1000);
+		});
+	
+	_.each(placesAfter, function (p) {
+		var link = _.find(outbound, function (l) { return l.get('target').id === p.id; });
+		paper.findViewByModel(link).sendToken(V('circle', { r: 5, fill: 'red' }).node, sec * 1000);
 		});
 	}
 
@@ -227,77 +249,45 @@ function deserializeGraph(data) {
 		});
 	}
 
+//simulation
+var simulation;
+
+//send graph
+function sendGraph() {
+	ws.send('{"type":1,'+ serializeGraph() +'}');
+	}
+
+//simulation step
+function simulationStep() {
+	ws.send('{"type":2}');
+	}
+
+//start simulation
+function startSimulation() {
+	sendGraph();
+	simulation = setInterval(simulationStep(), 1000);
+	}
+	
+//stop simulation
+function stopSimulation() {
+	clearInterval(simulation);
+	}
+	
+//web socket connection
+socket = new WebSocket("ws://localhost:8888/websocket");
+
+//response handler
+socket.onmessage = function(e) {
+	var data = JSON.parse(e.data);
+	switch(data.type) {
+		case 2:
+			deserializeGraph(data.data);
+		break;
+		}
+	console.log(e.data);
+	};
+	
 //onload
 $(function() {
 	updatePanel();
 	});
-
-
-//------------------------TESTS---------------------------------
-
-ws = new WebSocket("ws://localhost:8888/websocket");
-ws.onmessage = function(e) {
-
-    var data = JSON.parse(e.data);
-
-    if (data.type == 2) {
-        deserializeGraph(data.data);
-    }
-    console.log(e.data);
-};
-
-function send() {
-
-    console.log('{"type":1,'+ serializeGraph() +'}')
-	ws.send('{"type":1,'+ serializeGraph() +'}');
-	}
-
-function send2() {
-	ws.send('{"type": 2, "data": ""}');
-	}
-
-function test() {	
-var response = JSON.parse('{"data": {"priority": 4, "links_in": [{"direction": 0, "place": {"tokens": 0, "id": 0, "name": "p1"}, "id": 0, "weight": 1}], "links_out": [{"direction": 1, "place": {"tokens": 3, "id": 1, "name": "p2"}, "id": 1, "weight": 1}], "id": 0, "name": "t1"}, "type": 2}');
-
-deserializeGraph(response.data);
-
-}
-
-function fireTransition(t, sec) {
-	var inbound = graph.getConnectedLinks(t, { inbound: true });
-	var outbound = graph.getConnectedLinks(t, { outbound: true });
-	
-	var placesBefore = _.map(inbound, function (link) { return graph.getCell(link.get('source').id); });
-	var placesAfter = _.map(outbound, function (link) { return graph.getCell(link.get('target').id); });
-	
-	_.each(placesBefore, function (p) {
-		var link = _.find(inbound, function (l) { return l.get('source').id === p.id; });
-		paper.findViewByModel(link).sendToken(V('circle', { r: 5, fill: 'red' }).node, sec * 1000);
-		});
-	
-	_.each(placesAfter, function (p) {
-		var link = _.find(outbound, function (l) { return l.get('target').id === p.id; });
-		paper.findViewByModel(link).sendToken(V('circle', { r: 5, fill: 'red' }).node, sec * 1000);
-		});
-	}
-/*
-
-
-attrs: { '.label': { Objectfill: "#000000", font-size: 12, text: "qweety", ref: "rect",ref-x: 0.5,ref-y: -20,text-anchor: "middle" } }
-ref-x: 0.5ref-y: -20text: "t1"text-anchor: "middle"
-
-
-function simulate() {
-	var transitions = [trans[0], trans[1], trans[2], trans[3]];
-	_.each(transitions, function (t) { if (Math.random() < 0.7) fireTransition(t, 1); });
-
-	return setInterval(function () {
-		_.each(transitions, function (t) { if (Math.random() < 0.7) fireTransition(t, 1); });}, 2000);
-	}
-
-function stopSimulation(simulationId) {
-	clearInterval(simulationId);
-	}
-
-var simulationId = simulate();
-*/
