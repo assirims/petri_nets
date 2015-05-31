@@ -42,6 +42,6 @@ ws.send(JSON.stringify({"type":1,
      ]
  }}))
 
- ws.send(JSON.stringify({"type": 2, "data": ""}))
-
  ws.send(JSON.stringify({"type": 3, "data": ""}))
+
+ ws.send(JSON.stringify({"type": 2, "data": ""}))

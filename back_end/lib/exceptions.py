@@ -1,0 +1,2 @@
+class EmptyStatesListError(Exception):
+    pass

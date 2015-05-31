@@ -1,5 +1,6 @@
 import random
 import json
+from lib.bounded_checker import BoundedChecker
 from lib.coverability_graph import CoverabilityGraph
 
 from lib.reachability_graph import ReachabilityGraph
@@ -19,6 +20,9 @@ class GraphFeatureType(object):
     LIVE_TRANSITIONS = 2
     REACHABILITY_GRAPH = 3
     COVERABILITY_GRAPH = 4
+    PLACES_K_BOUNDED = 5
+    IS_NETWORK_K_BOUNDED = 6
+    IS_NETWORK_SAFE = 7
 
 
 class Main(object):
@@ -51,7 +55,10 @@ class Main(object):
             GraphFeatureType.INCIDENCE_MATRIX: self.__get_incidence_matrix().tolist(),
             GraphFeatureType.LIVE_TRANSITIONS: self.__get_live_transitions_ids(),
             GraphFeatureType.REACHABILITY_GRAPH: self.__get_reachability_graph(),
-            GraphFeatureType.COVERABILITY_GRAPH: self.__get_coverability_graph()
+            GraphFeatureType.COVERABILITY_GRAPH: self.__get_coverability_graph(),
+            GraphFeatureType.PLACES_K_BOUNDED: self.__get_places_k_bounded(),
+            GraphFeatureType.IS_NETWORK_K_BOUNDED: self.__is_network_k_bounded(),
+            GraphFeatureType.IS_NETWORK_SAFE: self.__is_network_safe()
         }
 
         return self.__json_type_wrapper(RequestType.GRAPH_FEATURES, data)
@@ -74,3 +81,18 @@ class Main(object):
     def __get_coverability_graph(self):
         coverability_graph = CoverabilityGraph(self.transitions)
         return coverability_graph.get_graph()
+
+    def __get_places_k_bounded(self):
+        states_list = CoverabilityGraph(self.transitions).get_graph()
+        bounded_checker = BoundedChecker(states_list)
+        return bounded_checker.get_places_k_bounded()
+
+    def __is_network_k_bounded(self):
+        states_list = CoverabilityGraph(self.transitions).get_graph()
+        bounded_checker = BoundedChecker(states_list)
+        return bounded_checker.is_network_k_bounded()
+
+    def __is_network_safe(self):
+        states_list = CoverabilityGraph(self.transitions).get_graph()
+        bounded_checker = BoundedChecker(states_list)
+        return bounded_checker.is_network_safe()
