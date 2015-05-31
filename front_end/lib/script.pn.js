@@ -263,41 +263,30 @@ deserializeGraph(response.data);
 
 }
 
-/*
-attrs: { '.label': { Objectfill: "#000000", font-size: 12, text: "qweety", ref: "rect",ref-x: 0.5,ref-y: -20,text-anchor: "middle" } }
-ref-x: 0.5ref-y: -20text: "t1"text-anchor: "middle"
-*/
 function fireTransition(t, sec) {
-
 	var inbound = graph.getConnectedLinks(t, { inbound: true });
 	var outbound = graph.getConnectedLinks(t, { outbound: true });
-
+	
 	var placesBefore = _.map(inbound, function (link) { return graph.getCell(link.get('source').id); });
 	var placesAfter = _.map(outbound, function (link) { return graph.getCell(link.get('target').id); });
-
-	var isFirable = true;
-	_.each(placesBefore, function (p) { if (p.get('tokens') == 0) isFirable = false; });
-
-	if (isFirable) {
-
-		_.each(placesBefore, function (p) {
-			// Let the execution finish before adjusting the value of tokens. So that we can loop over all transitions
-			// and call fireTransition() on the original number of tokens.
-			_.defer(function () { p.set('tokens', p.get('tokens') - 1); });
-			var link = _.find(inbound, function (l) { return l.get('source').id === p.id; });
-			paper.findViewByModel(link).sendToken(V('circle', { r: 5, fill: 'red' }).node, sec * 1000);
-			});
-
-		_.each(placesAfter, function (p) {
-			var link = _.find(outbound, function (l) { return l.get('target').id === p.id; });
-			paper.findViewByModel(link).sendToken(V('circle', { r: 5, fill: 'red' }).node, sec * 1000, function () {
-				p.set('tokens', p.get('tokens') + 1);
-				});
-
-			});
-		}
+	
+	_.each(placesBefore, function (p) {
+		var link = _.find(inbound, function (l) { return l.get('source').id === p.id; });
+		paper.findViewByModel(link).sendToken(V('circle', { r: 5, fill: 'red' }).node, sec * 1000);
+		});
+	
+	_.each(placesAfter, function (p) {
+		var link = _.find(outbound, function (l) { return l.get('target').id === p.id; });
+		paper.findViewByModel(link).sendToken(V('circle', { r: 5, fill: 'red' }).node, sec * 1000);
+		});
 	}
 /*
+
+
+attrs: { '.label': { Objectfill: "#000000", font-size: 12, text: "qweety", ref: "rect",ref-x: 0.5,ref-y: -20,text-anchor: "middle" } }
+ref-x: 0.5ref-y: -20text: "t1"text-anchor: "middle"
+
+
 function simulate() {
 	var transitions = [trans[0], trans[1], trans[2], trans[3]];
 	_.each(transitions, function (t) { if (Math.random() < 0.7) fireTransition(t, 1); });
