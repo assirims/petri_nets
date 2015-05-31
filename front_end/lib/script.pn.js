@@ -191,9 +191,10 @@ function serializeGraph() {
 	}
 
 //deserialize graph
-function deserializeGraph(graph) {
-	graph.data.places.forEach(function(e, i) {
-		place[i].prop('tokens', e.tokens);
+function deserializeGraph(data) {
+	data.links_in.concat(data.links_out).forEach(function(e) {
+		e = e.place;
+		place[e.id].prop('tokens', e.tokens);
 		});
 	}
 
@@ -222,9 +223,16 @@ function send() {
 	ws.send('{"type":1,'+ serializeGraph() +'}');
 	}
 
-function send2(type) {
+function send2() {
 	ws.send('{"type": 2, "data": ""}');
 	}
+
+function test() {	
+var response = JSON.parse('{"data": {"priority": 4, "links_in": [{"direction": 0, "place": {"tokens": 0, "id": 0, "name": "p1"}, "id": 0, "weight": 1}], "links_out": [{"direction": 1, "place": {"tokens": 3, "id": 1, "name": "p2"}, "id": 1, "weight": 1}], "id": 0, "name": "t1"}, "type": 2}');
+
+deserializeGraph(response.data);
+
+}
 
 /*
 attrs: { '.label': { Objectfill: "#000000", font-size: 12, text: "qweety", ref: "rect",ref-x: 0.5,ref-y: -20,text-anchor: "middle" } }
