@@ -112,10 +112,9 @@ function getNodeIndex(id) {
 
 //delete node
 function deleteNode(id) {
+	//!
 	getNodeById(id).remove();
-
 	array.splice(index, array.indexOf(5));
-
 	updatePanel();
 	}
 
@@ -170,25 +169,25 @@ function serializeGraph() {
 
 	var transitions = '"transitions": [';
 	trans.forEach(function(oe, oi) {
-		var connectors_in_ids = [], connectors_out_ids = [];
+		var links_in_ids = [], links_out_ids = [];
 		link.forEach(function(ie, ii) {
 			if(oe.id == ie.prop('source').id || oe.id == ie.prop('target').id)
 				if(ie.prop('direction'))
-					connectors_out_ids.push(ii);
+					links_out_ids.push(ii);
 				else
-					connectors_in_ids.push(ii);
+					links_in_ids.push(ii);
 			});
-		transitions += '{"id":'+ oi +',"name":"'+ oe.attr('.label').text +'","priority":'+ oe.prop('priority') +',"links_in_ids":'+ JSON.stringify(connectors_in_ids) +',"links_out_ids":'+ JSON.stringify(connectors_out_ids) +'},';
+		transitions += '{"id":'+ oi +',"name":"'+ oe.attr('.label').text +'","priority":'+ oe.prop('priority') +',"links_in_ids":'+ JSON.stringify(links_in_ids) +',"links_out_ids":'+ JSON.stringify(links_out_ids) +'},';
 		});
 	transitions = transitions.slice(0,-1) + ']';
 
-	var connectors = '"links": [';
+	var links = '"links": [';
 	link.forEach(function(e, i) {
-		connectors += '{"id":'+ i +',"place_id":'+ getNodeIndex(e.prop('source').id) +',"direction":'+ e.prop('direction') +',"weight":'+ e.prop('weight') +'},';
+		links += '{"id":'+ i +',"place_id":'+ (e.prop('direction') ? getNodeIndex(e.prop('target').id) : getNodeIndex(e.prop('source').id)) +',"direction":'+ e.prop('direction') +',"weight":'+ e.prop('weight') +'},';
 		});
-	connectors = connectors.slice(0,-1) + ']';
+	links = links.slice(0,-1) + ']';
 
-	return '"data":{'+ connectors +','+ places +','+ transitions +'}';
+	return '"data":{'+ links +','+ places +','+ transitions +'}';
 	}
 
 //deserialize graph
