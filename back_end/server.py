@@ -1,5 +1,6 @@
+import os
 import ast
-
+import json
 import tornado.ioloop
 import tornado.web
 import tornado.websocket
@@ -10,7 +11,7 @@ from main import Main, RequestType
 
 class Server(tornado.websocket.WebSocketHandler):
     def open(self):
-        self.write_message("Petri net simulation")
+        self.write_message(json.dumps({"message": "Petri net simulation"}))
 
     def on_message(self, message):
         message_dict = ast.literal_eval(message)
@@ -24,11 +25,18 @@ class Server(tornado.websocket.WebSocketHandler):
             parsed_objects = JsonToObjectParser()
             parsed_objects.create_graph_structure(receive_data)
             self.main = Main(parsed_objects.places, parsed_objects.transitions, parsed_objects.links)
+
             return self.write_message(self.main.start_simulation())
         elif action_type is RequestType.SIMULATE:
-            return self.write_message(self.main.simulate())
+            try:
+                return self.write_message(self.main.simulate())
+            except AttributeError:
+                return self.write_message(json.dumps({'error': 'Network is empty. Please send network parameters first.'}))
         elif action_type is RequestType.GRAPH_FEATURES:
-            return self.write_message(self.main.get_graph_features())
+            try:
+                return self.write_message(self.main.get_graph_features())
+            except AttributeError:
+                return self.write_message(json.dumps({'error': 'Network is empty. Please send network parameters first.'}))
 
     def on_close(self):
         pass
@@ -37,13 +45,18 @@ class Server(tornado.websocket.WebSocketHandler):
 class MainPage(tornado.web.RequestHandler):
     def get(self):
         # This could be a template, too.
-        self.render('/home/czis/Pulpit/index.html')
+        self.render(os.path.join(root, '../front_end/index.html'))
 
+root = os.path.dirname(__file__)
+
+handlers = [
+            (r'/static/(.*)', tornado.web.StaticFileHandler, {'path': os.path.join(root, '../front_end')})
+]
 
 application = tornado.web.Application([
     (r"/", MainPage),
     (r"/websocket", Server),
-])
+], debug=True, static_path=os.path.join(root, '../front_end'))
 
 if __name__ == "__main__":
     application.listen(8888)

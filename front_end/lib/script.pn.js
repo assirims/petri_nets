@@ -10,7 +10,7 @@ var paper = new joint.dia.Paper({
 	perpendicularLinks: true,
 	model: graph
 	});
-	
+
 var pn = joint.shapes.pn;
 
 //places
@@ -67,7 +67,7 @@ graph.addCell([
 	link[9]
 	]);
 
-//cursor position	
+//cursor position
 var cursorPos = {};
 
 $('#paper').mousemove(function(e){
@@ -83,7 +83,7 @@ function addPlace(xPos, yPos, label, tokens) {
 		place[place.length] = new pn.Place({ position: { x: xPos - 32, y: yPos - 32 }, attrs: { '.label': { text: label } }, tokens: tokens })
 		]);
 	}
-	
+
 function addTrans(xPos, yPos, label, priority) {
 	graph.addCell([
 		trans[trans.length] = new pn.Transition({ position: { x: xPos - 13, y: yPos - 32 }, attrs: { '.label': { text: label } }, priority: priority })
@@ -109,7 +109,7 @@ $('#paper').dblclick(function() {
 		addTrans(cursorPos.x, cursorPos.y, $('#add-label').val(), $('#add-content').val());
 	});
 
-//get node	
+//get node
 function getNodeById(id) {
 	var node = null;
 	place.concat(trans).forEach(function(e) {
@@ -118,7 +118,7 @@ function getNodeById(id) {
 		});
 	return node;
 	}
-	
+
 function getNodeByLabel(label) {
 	var node = null;
 	place.concat(trans).forEach(function(e) {
@@ -127,7 +127,7 @@ function getNodeByLabel(label) {
 		});
 	return node;
 	}
-	
+
 //get node index
 function getNodeIndex(id) {
 	var index;
@@ -137,20 +137,20 @@ function getNodeIndex(id) {
 		});
 		return index;
 	}
-	
-//delete node	
+
+//delete node
 function deleteNode(id) {
 	getNodeById(id).remove();
-	
+
 	array.splice(index, array.indexOf(5));
-	
+
 	updatePanel();
 	}
 
 $('#delete').click(function() {
 	deleteNode($('#delete-list').val());
-	});	
-	
+	});
+
 //link direction
 $('#link-direction').click(function() {
 		if($(this).data('direction'))
@@ -169,7 +169,7 @@ function addLink(nodes, direction, weight) {
 		link[link.length] = new pn.Link({ source: { id: getNodeById(nodes[0]).id, selector: '.root' }, target: { id: getNodeById(nodes[1]).id, selector: '.root' }, direction: direction, weight: weight })
 		]);
 	}
-		
+
 $('#link').click(function() {
 	addLink([$('#link-place').val(), $('#link-trans').val()], $('#link-direction').data('direction'), $('#link-weight').val())
 	});
@@ -177,25 +177,25 @@ $('#link').click(function() {
 //update panel
 function updatePanel() {
 	$('#link-place, #link-trans, #delete-list optgroup[label=Places], #delete-list optgroup[label=Transitions]').empty();
-	
+
 	place.forEach(function(e) {
 		$('#link-place, #delete-list optgroup[label=Places]').append($('<option>', {value: e.id, text: e.attr('.label').text}));
 		});
-		
+
 	trans.forEach(function(e) {
 		$('#link-trans, #delete-list optgroup[label=Transitions]').append($('<option>', {value: e.id, text: e.attr('.label').text}));
 		});
 	}
-	
+
 //serialize graph
 function serializeGraph() {
-	
+
 	var places = '"places": [';
 	place.forEach(function(e, i) {
 		places += '{"id":'+ i +',"name":"'+ e.attr('.label').text +'","tokens":'+ e.prop('tokens') +'},';
 		});
 	places = places.slice(0,-1) + ']';
-	
+
 	var transitions = '"transitions": [';
 	trans.forEach(function(oe, oi) {
 		var connectors_in_ids = [], connectors_out_ids = [];
@@ -206,16 +206,16 @@ function serializeGraph() {
 				else
 					connectors_in_ids.push(ii);
 			});
-		transitions += '{"id":'+ oi +',"name":"'+ oe.attr('.label').text +'","priority":'+ oe.prop('priority') +',"connectors_in_ids":'+ JSON.stringify(connectors_in_ids) +',"connectors_out_ids":'+ JSON.stringify(connectors_out_ids) +'},';
+		transitions += '{"id":'+ oi +',"name":"'+ oe.attr('.label').text +'","priority":'+ oe.prop('priority') +',"links_in_ids":'+ JSON.stringify(connectors_in_ids) +',"links_out_ids":'+ JSON.stringify(connectors_out_ids) +'},';
 		});
 	transitions = transitions.slice(0,-1) + ']';
-	
-	var connectors = '"connectors": [';
+
+	var connectors = '"links": [';
 	link.forEach(function(e, i) {
-		connectors += '{"id":'+ i +',"place_id":"'+ getNodeIndex(e.prop('source').id) +'","direction":'+ e.prop('direction') +',"weight":'+ e.prop('weight') +'},';
+		connectors += '{"id":'+ i +',"place_id":'+ getNodeIndex(e.prop('source').id) +',"direction":'+ e.prop('direction') +',"weight":'+ e.prop('weight') +'},';
 		});
 	connectors = connectors.slice(0,-1) + ']';
-	
+
 	return '"data":{'+ connectors +','+ places +','+ transitions +'}';
 	}
 
@@ -226,7 +226,7 @@ function deserializeGraph(graph) {
 		});
 	}
 
-//onload	
+//onload
 $(function() {
 	updatePanel();
 	});
@@ -234,24 +234,22 @@ $(function() {
 
 //------------------------TESTS---------------------------------
 
+ws = new WebSocket("ws://localhost:8888/websocket");
+ws.onmessage = function(e) {
+    if (e.data.type == 2) {
+        deserializeGraph(e.data);
+    }
+    console.log(e.data);
+};
+
 function send() {
-	
-	var request = '{"type":1,'+ serializeGraph() +'}';
-	
-	console.log(request);
+
+    console.log('{"type":1,'+ serializeGraph() +'}')
+	ws.send('{"type":1,'+ serializeGraph() +'}');
 	}
 
 function send2(type) {
-	var request = '{"type":'+ type +'}';
-	
-	console.log(request);
-	}
-
-function receive() {
-	
-	var response = JSON.parse('{"data":{"connectors": [{"id":0,"place_id":"0","direction":1,"weight":1},{"id":1,"place_id":"0","direction":0,"weight":1},{"id":2,"place_id":"1","direction":1,"weight":3},{"id":3,"place_id":"1","direction":0,"weight":3},{"id":4,"place_id":"1","direction":1,"weight":1},{"id":5,"place_id":"2","direction":0,"weight":2},{"id":6,"place_id":"2","direction":1,"weight":1},{"id":7,"place_id":"3","direction":0,"weight":5},{"id":8,"place_id":"3","direction":1,"weight":1},{"id":9,"place_id":"4","direction":0,"weight":1}],"places": [{"id":0,"name":"p1","tokens":10},{"id":1,"name":"p2","tokens":3},{"id":2,"name":"p3","tokens":100},{"id":3,"name":"p4","tokens":0},{"id":4,"name":"p5","tokens":2}],"transitions": [{"id":0,"name":"t1","priority":4,"connectors_in_ids":[3],"connectors_out_ids":[0]},{"id":1,"name":"t2","priority":1,"connectors_in_ids":[1],"connectors_out_ids":[2,4]},{"id":2,"name":"t3","priority":3,"connectors_in_ids":[5,9],"connectors_out_ids":[6]},{"id":3,"name":"t4","priority":1,"connectors_in_ids":[7],"connectors_out_ids":[8]}]}}');
-	
-	deserializeGraph(response);
+	ws.send('{"type": 2, "data": ""}');
 	}
 
 /*
@@ -259,18 +257,18 @@ attrs: { '.label': { Objectfill: "#000000", font-size: 12, text: "qweety", ref: 
 ref-x: 0.5ref-y: -20text: "t1"text-anchor: "middle"
 
 function fireTransition(t, sec) {
-	
+
 	var inbound = graph.getConnectedLinks(t, { inbound: true });
 	var outbound = graph.getConnectedLinks(t, { outbound: true });
-	
+
 	var placesBefore = _.map(inbound, function (link) { return graph.getCell(link.get('source').id); });
 	var placesAfter = _.map(outbound, function (link) { return graph.getCell(link.get('target').id); });
-	
+
 	var isFirable = true;
 	_.each(placesBefore, function (p) { if (p.get('tokens') == 0) isFirable = false; });
-	
+
 	if (isFirable) {
-		
+
 		_.each(placesBefore, function (p) {
 			// Let the execution finish before adjusting the value of tokens. So that we can loop over all transitions
 			// and call fireTransition() on the original number of tokens.
@@ -278,13 +276,13 @@ function fireTransition(t, sec) {
 			var link = _.find(inbound, function (l) { return l.get('source').id === p.id; });
 			paper.findViewByModel(link).sendToken(V('circle', { r: 5, fill: 'red' }).node, sec * 1000);
 			});
-			
+
 		_.each(placesAfter, function (p) {
 			var link = _.find(outbound, function (l) { return l.get('target').id === p.id; });
 			paper.findViewByModel(link).sendToken(V('circle', { r: 5, fill: 'red' }).node, sec * 1000, function () {
 				p.set('tokens', p.get('tokens') + 1);
 				});
-				
+
 			});
 		}
 	}
@@ -292,14 +290,14 @@ function fireTransition(t, sec) {
 function simulate() {
 	var transitions = [trans[0], trans[1], trans[2], trans[3]];
 	_.each(transitions, function (t) { if (Math.random() < 0.7) fireTransition(t, 1); });
-	
+
 	return setInterval(function () {
 		_.each(transitions, function (t) { if (Math.random() < 0.7) fireTransition(t, 1); });}, 2000);
-	} 
-		
+	}
+
 function stopSimulation(simulationId) {
 	clearInterval(simulationId);
 	}
-	
+
 var simulationId = simulate();
 */

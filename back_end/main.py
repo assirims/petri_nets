@@ -1,6 +1,7 @@
 import random
 import json
 from lib.bounded_checker import BoundedChecker
+from lib.conservative_checker import ConservativeChecker
 from lib.coverability_graph import CoverabilityGraph
 
 from lib.reachability_graph import ReachabilityGraph
@@ -23,6 +24,7 @@ class GraphFeatureType(object):
     PLACES_K_BOUNDED = 5
     IS_NETWORK_K_BOUNDED = 6
     IS_NETWORK_SAFE = 7
+    IS_NETWORK_CONSERVATIVE = 8
 
 
 class Main(object):
@@ -58,7 +60,8 @@ class Main(object):
             GraphFeatureType.COVERABILITY_GRAPH: self.__get_coverability_graph(),
             GraphFeatureType.PLACES_K_BOUNDED: self.__get_places_k_bounded(),
             GraphFeatureType.IS_NETWORK_K_BOUNDED: self.__is_network_k_bounded(),
-            GraphFeatureType.IS_NETWORK_SAFE: self.__is_network_safe()
+            GraphFeatureType.IS_NETWORK_SAFE: self.__is_network_safe(),
+            GraphFeatureType.IS_NETWORK_CONSERVATIVE: self.__is_network_conservative()
         }
 
         return self.__json_type_wrapper(RequestType.GRAPH_FEATURES, data)
@@ -96,3 +99,8 @@ class Main(object):
         states_list = CoverabilityGraph(self.transitions).get_graph()
         bounded_checker = BoundedChecker(states_list)
         return bounded_checker.is_network_safe()
+
+    def __is_network_conservative(self):
+        states_list = CoverabilityGraph(self.transitions).get_graph()
+        conservative_checker = ConservativeChecker(states_list)
+        return conservative_checker.is_network_conservative()
