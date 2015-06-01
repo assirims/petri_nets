@@ -339,6 +339,8 @@ function getParameters() {
 	socket.send('{"type":3,"data":""}');
 	}
 
+$('#simulation-graph-features').click(getParameters);
+
 //onload
 $(function() {
 	updatePanel();
