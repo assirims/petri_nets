@@ -80,13 +80,13 @@ $('#paper').mousemove(function(e){
 //add node
 function addPlace(xPos, yPos, label, tokens) {
 	graph.addCell([
-		place[place.length] = new pn.Place({ position: { x: xPos - 32, y: yPos - 32 }, attrs: { '.label': { text: label } }, tokens: tokens })
+		place[place.length] = new pn.Place({ position: { x: xPos - 32, y: yPos - 32 }, attrs: { '.label': { text: label } }, tokens: parseInt(tokens) })
 		]);
 	}
 
 function addTrans(xPos, yPos, label, priority) {
 	graph.addCell([
-		trans[trans.length] = new pn.Transition({ position: { x: xPos - 13, y: yPos - 32 }, attrs: { '.label': { text: label } }, priority: priority })
+		trans[trans.length] = new pn.Transition({ position: { x: xPos - 13, y: yPos - 32 }, attrs: { '.label': { text: label } }, priority: parseInt(priority) })
 		]);
 	}
 
@@ -99,18 +99,33 @@ $('#add-trans').change(function() {
 	$('label[for="add-content"]').html('Priority');
 	});
 
+//validate node
+function validateNode() {
+	if($('#add-label').val().trim() && getNodeByLabel($('#add-label').val()) == null && $('#add-content').val().trim() && Number.isInteger(parseInt($('#add-content').val()))) {
+		$('#add-info').html('Double click on paper to add');
+		return true;
+		}
+	else {
+		$('#add-info').html('Fill in inputs with correct values to add');
+		return false;
+		}
+	}
+
+$('#add-label, #add-content').change(validateNode);
+
 $('#paper').dblclick(function() {
-	
-	console.log(Boolean($('#add-label').val().trim()));
-	console.log(getNodeByLabel($('#add-label').val())==null);
-	console.log(Boolean($('#add-content').val().trim()));
-	console.log(Number.isInteger(parseInt($('#add-content').val())));
-	
-	if($('#add-place').attr('checked'))
-		addPlace(cursorPos.x, cursorPos.y, $('#add-label').val(), $('#add-content').val());
-	else
-		addTrans(cursorPos.x, cursorPos.y, $('#add-label').val(), $('#add-content').val());
-	updatePanel();
+	if(validateNode()) {
+		if($('#add-place').is(':checked'))
+			addPlace(cursorPos.x, cursorPos.y, $('#add-label').val(), $('#add-content').val());
+		else
+			addTrans(cursorPos.x, cursorPos.y, $('#add-label').val(), $('#add-content').val());
+		$('#add-label, #add-content').val('');
+		validateNode();
+		updatePanel();
+		}
+	else {
+		console.log('ERROR');
+		}
 	});
 
 //get node
@@ -145,7 +160,10 @@ function getNodeIndex(id) {
 //delete node
 function deleteNode(id) {
 	getNodeById(id).remove();
-	place.splice(place.indexOf(getNodeById(id)), 1);
+	if(getNodeById(id).prop('type') == 'pn.Place')
+		place.splice(getNodeIndex(id), 1);
+	else
+		trans.splice(getNodeIndex(id), 1);
 	updatePanel();
 	}
 
@@ -162,13 +180,27 @@ $('#link-direction').click(function() {
 		$(this).data('direction',+!$(this).data('direction'));
 		});
 
+//validate link
+function validateLink(nodes) {
+var falg = true, array;
+link.forEach(function(e) {
+		array = [e.prop('source').id, e.prop('target').id];
+		if(!($(nodes).not(array).length && $(array).not(nodes).length))
+			flag = false;
+	});
+return flag;
+}
+
 //add link
 function addLink(nodes, direction, weight) {
-	//!validate empty/duplicate
+	
+	console.log(validateLink(nodes));
+
+	$('#add-label, #add-content').val('');
 	if(direction)
 		nodes.reverse();
 	graph.addCell([
-		link[link.length] = new pn.Link({ source: { id: getNodeById(nodes[0]).id, selector: '.root' }, target: { id: getNodeById(nodes[1]).id, selector: '.root' }, direction: direction, weight: weight })
+		link[link.length] = new pn.Link({ source: { id: nodes[0], selector: '.root' }, target: { id: nodes[1], selector: '.root' }, direction: direction, weight: weight })
 		]);
 	}
 
@@ -187,6 +219,8 @@ function updatePanel() {
 	trans.forEach(function(e) {
 		$('#link-trans, #delete-list optgroup[label=Transitions]').append($('<option>', {value: e.id, text: e.attr('.label').text}));
 		});
+
+	//!disable/eanble btns
 	}
 	
 //fire transition
@@ -249,17 +283,33 @@ function deserializeGraph(data) {
 		});
 	}
 
+//web socket connection
+socket = new WebSocket("ws://localhost:8888/websocket");
+
+//response handler
+socket.onmessage = function(e) {
+	var data = JSON.parse(e.data);
+	switch(data.type) {
+		case 2:
+			deserializeGraph(data.data);
+		break;
+		default:
+			console.log('ERROR');
+		}
+	console.log(e.data);
+	};
+
 //simulation
 var simulation;
 
 //send graph
 function sendGraph() {
-	ws.send('{"type":1,'+ serializeGraph() +'}');
+	socket.send('{"type":1,'+ serializeGraph() +'}');
 	}
 
 //simulation step
 function simulationStep() {
-	ws.send('{"type":2}');
+	socket.send('{"type":2}');
 	}
 
 //start simulation
@@ -272,21 +322,12 @@ function startSimulation() {
 function stopSimulation() {
 	clearInterval(simulation);
 	}
-	
-//web socket connection
-socket = new WebSocket("ws://localhost:8888/websocket");
 
-//response handler
-socket.onmessage = function(e) {
-	var data = JSON.parse(e.data);
-	switch(data.type) {
-		case 2:
-			deserializeGraph(data.data);
-		break;
-		}
-	console.log(e.data);
-	};
-	
+//get parameters
+function getParameters() {
+	socket.send('{"type":3}');
+	}
+
 //onload
 $(function() {
 	updatePanel();

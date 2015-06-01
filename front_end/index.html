@@ -3,9 +3,9 @@
 <head>
 <meta charset="UTF-8" />
 <link rel="stylesheet" type="text/css" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css">
-<link rel="stylesheet" type="text/css" href="static/lib/joint.css" />
-<script src="static/lib/joint.js"></script>
-<script src="static/lib/joint.shapes.pn.js"></script>
+<link rel="stylesheet" type="text/css" href="lib/joint.css" />
+<script src="lib/joint.js"></script>
+<script src="lib/joint.shapes.pn.js"></script>
 <title>Petri Net</title>
 </head>
 <body>
@@ -16,6 +16,7 @@
 <input type="radio" name="add-type" value="trans" id="add-trans" /> <label for="add-trans">Transition</label>
 <label for="add-label">Label</label> <input type="text" id="add-label" />
 <label for="add-content">Tokens</label> <input type="text" id="add-content" />
+<span id="add-info">Fill in inputs with correct values to add</span>
 <br />
 <button id="link">Link</button>
 Place <select id="link-place"></select>
@@ -29,6 +30,6 @@ Transition <select id="link-trans"></select>
 <optgroup label="Transitions"></optgroup>
 </select>
 </div>
-<script src="static/lib/script.pn.js"></script>
+<script src="lib/script.pn.js"></script>
 </body>
 </html>
