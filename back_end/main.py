@@ -44,11 +44,14 @@ class Main(object):
         return self.__json_type_wrapper(RequestType.START)
 
     def simulate(self):
-        transition = random.sample(self.transitions, 1)[0]
-        if transition.is_doable():
-            priority_queue = Helper.get_competitive_transitions_priority_queue(self.transitions, transition)
-            if transition is priority_queue.get():
-                transition.run_transition()
+        live_transitions = self.__get_live_transitions()
+        if not live_transitions:
+            return self.__json_type_wrapper(RequestType.END)
+
+        transition = random.sample(live_transitions, 1)[0]
+
+        priority_queue = Helper.get_competitive_transitions_priority_queue(self.transitions, transition)
+        priority_queue.get().run_transition()
 
         return self.__json_type_wrapper(RequestType.SIMULATE, transition.to_json(), True)
 
@@ -76,6 +79,10 @@ class Main(object):
             if transition.is_doable():
                 live_transitions_ids.append(transition.id)
         return live_transitions_ids
+
+    def __get_live_transitions(self):
+        live_transitions_ids = self.__get_live_transitions_ids()
+        return [Helper.find_transition_by_id(self.transitions, id) for id in live_transitions_ids]
 
     def __get_reachability_graph(self):
         reachability_graph = ReachabilityGraph(self.transitions)
