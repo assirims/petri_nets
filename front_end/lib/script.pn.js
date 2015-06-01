@@ -124,7 +124,7 @@ $('#paper').dblclick(function() {
 		updatePanel();
 		}
 	else {
-		console.log('ERROR');
+		console.log('ERROR: Invalid node data');
 		}
 	});
 
@@ -182,26 +182,28 @@ $('#link-direction').click(function() {
 
 //validate link
 function validateLink(nodes) {
-var falg = true, array;
-link.forEach(function(e) {
+	var flag = true, array;
+	link.forEach(function(e) {
 		array = [e.prop('source').id, e.prop('target').id];
 		if(!($(nodes).not(array).length && $(array).not(nodes).length))
 			flag = false;
-	});
-return flag;
-}
+		});
+	return flag;
+	}
 
 //add link
 function addLink(nodes, direction, weight) {
-	
-	console.log(validateLink(nodes));
-
-	$('#add-label, #add-content').val('');
-	if(direction)
-		nodes.reverse();
-	graph.addCell([
-		link[link.length] = new pn.Link({ source: { id: nodes[0], selector: '.root' }, target: { id: nodes[1], selector: '.root' }, direction: direction, weight: weight })
-		]);
+	if(validateLink(nodes)) {
+		$('#add-label, #add-content').val('');
+		if(direction)
+			nodes.reverse();
+		graph.addCell([
+			link[link.length] = new pn.Link({ source: { id: nodes[0], selector: '.root' }, target: { id: nodes[1], selector: '.root' }, direction: direction, weight: weight })
+			]);
+		}
+	else {
+		console.log('ERROR: Duplicate link');
+		}
 	}
 
 $('#link').click(function() {
@@ -293,8 +295,6 @@ socket.onmessage = function(e) {
 		case 2:
 			deserializeGraph(data.data);
 		break;
-		default:
-			console.log('ERROR');
 		}
 	console.log(e.data);
 	};
@@ -309,13 +309,13 @@ function sendGraph() {
 
 //simulation step
 function simulationStep() {
-	socket.send('{"type":2}');
+	socket.send('{"type":2,"data":""}');
 	}
 
 //start simulation
 function startSimulation() {
 	sendGraph();
-	simulation = setInterval(simulationStep(), 1000);
+	simulation = setInterval(simulationStep(), 2000);
 	}
 	
 //stop simulation
@@ -325,7 +325,7 @@ function stopSimulation() {
 
 //get parameters
 function getParameters() {
-	socket.send('{"type":3}');
+	socket.send('{"type":3,"data":""}');
 	}
 
 //onload
