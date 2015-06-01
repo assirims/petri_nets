@@ -11,24 +11,65 @@
 <body>
 <div id="paper" class="paper">
 </div>
+<style>
+#simulation-panel {
+	position: fixed;
+	top: 20px;
+	right: 20px;
+	}
+</style>
+<div id="simulation-panel">
+<button id="simulation-step" class="btn btn-info">Simulation step</button>
+<br />
+<br />
+<button id="simulation-start" class="btn btn-success">Start simulation</button>
+<br />
+<br />
+<button id="simulation-stop" class="btn btn-danger">Stop simulation</button>
+</div>
 <div id="panel">
-<input type="radio" name="add-type" value="place" id="add-place" checked /> <label for="add-place">Place</label>
-<input type="radio" name="add-type" value="trans" id="add-trans" /> <label for="add-trans">Transition</label>
+<fieldset>
+<legend>Add place/transition</legend>
+<label for="add-place" class="checkbox-inline"><input type="radio" name="add-type" value="place" id="add-place" checked /> Place</label>
+<label for="add-trans" class="checkbox-inline"><input type="radio" name="add-type" value="trans" id="add-trans" /> Transition</label>
+&nbsp;
+&nbsp;
 <label for="add-label">Label</label> <input type="text" id="add-label" />
+&nbsp;
+&nbsp;
 <label for="add-content">Tokens</label> <input type="text" id="add-content" />
+&nbsp;
+&nbsp;
 <span id="add-info">Fill in inputs with correct values to add</span>
+</fieldset>
 <br />
-<button id="link">Link</button>
-Place <select id="link-place"></select>
-<span class="glyphicon glyphicon-arrow-right" data-direction="0" id="link-direction"></span>
-Transition <select id="link-trans"></select>
-<label for="link-weight">Weight</label><input type="text" id="link-weight" />
-<br />
-<button id="delete">Delete</button>
+<fieldset>
+<legend>Delete place/transition</legend>
+&nbsp;
+&nbsp;
+<button id="delete" class="btn btn-primary btn-xs">Delete</button>
+&nbsp;
+&nbsp;
 <select id="delete-list">
 <optgroup label="Places"></optgroup>
 <optgroup label="Transitions"></optgroup>
 </select>
+</fieldset>
+<br />
+<fieldset>
+<legend>Add link</legend>
+&nbsp;
+&nbsp;
+<button id="link" class="btn btn-primary btn-xs">Link</button>
+&nbsp;
+&nbsp;
+Place <select id="link-place"></select>
+<span class="glyphicon glyphicon-arrow-right" data-direction="0" id="link-direction"></span>
+Transition <select id="link-trans"></select>
+&nbsp;
+&nbsp;
+<label for="link-weight">Weight</label><input type="text" id="link-weight" />
+</fieldset>
 </div>
 <script src="static/lib/script.pn.js"></script>
 </body>

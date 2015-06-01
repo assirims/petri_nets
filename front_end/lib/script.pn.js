@@ -5,7 +5,7 @@ var graph = new joint.dia.Graph;
 var paper = new joint.dia.Paper({
 	el: $('#paper'),
 	width: 1000,
-	height: 500,
+	height: 330,
 	gridSize: 10,
 	perpendicularLinks: true,
 	model: graph
@@ -221,8 +221,13 @@ function updatePanel() {
 	trans.forEach(function(e) {
 		$('#link-trans, #delete-list optgroup[label=Transitions]').append($('<option>', {value: e.id, text: e.attr('.label').text}));
 		});
-
-	//!disable/eanble btns
+	
+	if(!($('#link-place:has(option)').length && $('#link-trans:has(option)').length))
+		$('#link').attr('disabled','disabled');
+	
+	if(!$('#delete-list:has(option)').length)
+		$('#delete').attr('disabled','disabled');
+	
 	}
 	
 //fire transition
@@ -308,20 +313,26 @@ function sendGraph() {
 	}
 
 //simulation step
-function simulationStep() {
+function stepSimulation() {
 	socket.send('{"type":2,"data":""}');
 	}
+
+$('#simulation-step').click(stepSimulation);
 
 //start simulation
 function startSimulation() {
 	sendGraph();
-	simulation = setInterval(simulationStep(), 2000);
+	simulation = setInterval(stepSimulation(), 2000);
 	}
+
+$('#simulation-start').click(startSimulation);
 	
 //stop simulation
 function stopSimulation() {
 	clearInterval(simulation);
 	}
+	
+$('#simulation-stop').click(stopSimulation);
 
 //get parameters
 function getParameters() {
