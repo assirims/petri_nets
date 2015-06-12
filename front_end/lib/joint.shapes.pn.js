@@ -141,7 +141,7 @@ joint.shapes.pn.Transition = joint.shapes.basic.Generic.extend({
                 stroke: '#000000'
             },
             '.label': {
-                'text-anchor': 'middle',
+				'text-anchor': 'middle',
                 'ref-x': .5,
                 'ref-y': -20,
                 ref: 'rect',

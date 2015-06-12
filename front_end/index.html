@@ -6,6 +6,8 @@
 <link rel="stylesheet" type="text/css" href="static/lib/joint.css" />
 <script src="static/lib/joint.js"></script>
 <script src="static/lib/joint.shapes.pn.js"></script>
+<script src="static/lib/joint.shapes.fsa.js"></script>
+<script src="static/lib/FileSaver.js"></script>
 <title>Petri Net</title>
 </head>
 <body>
@@ -16,6 +18,22 @@
 	position: fixed;
 	top: 20px;
 	right: 20px;
+	}
+#overlay {
+	display: none;
+	position: fixed;
+	top: 0;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	background: rgba(0,0,0,0.7);
+	z-index: 100;
+	}
+#window {
+	height: 70%;
+	width: 70%;
+	margin: 50px auto;
+	background: #FFFFFF;
 	}
 </style>
 <div id="simulation-panel">
@@ -28,7 +46,7 @@
 <button id="simulation-stop" class="btn btn-danger">Stop simulation</button>
 <br />
 <br />
-<button id="simulation-graph-features" class="btn btn-warning">Graph features</button>
+<button id="graph-parameters" class="btn btn-warning">Graph parameters</button>
 </div>
 <div id="panel">
 <fieldset>
@@ -37,26 +55,13 @@
 <label for="add-trans" class="checkbox-inline"><input type="radio" name="add-type" value="trans" id="add-trans" /> Transition</label>
 &nbsp;
 &nbsp;
-<label for="add-label">Label</label> <input type="text" id="add-label" />
+<label for="add-label">Name</label> <input type="text" id="add-label" />
 &nbsp;
 &nbsp;
 <label for="add-content">Tokens</label> <input type="text" id="add-content" />
 &nbsp;
 &nbsp;
-<span id="add-info">Fill in inputs with correct values to add</span>
-</fieldset>
-<br />
-<fieldset>
-<legend>Delete place/transition</legend>
-&nbsp;
-&nbsp;
-<button id="delete" class="btn btn-primary btn-xs">Delete</button>
-&nbsp;
-&nbsp;
-<select id="delete-list">
-<optgroup label="Places"></optgroup>
-<optgroup label="Transitions"></optgroup>
-</select>
+<span id="add-info"></span>
 </fieldset>
 <br />
 <fieldset>
@@ -73,7 +78,17 @@ Transition <select id="link-trans"></select>
 &nbsp;
 <label for="link-weight">Weight</label><input type="text" id="link-weight" />
 </fieldset>
+<br />
+<fieldset>
+<legend>Load graph from file</legend>
+&nbsp;
+&nbsp;
+<label for="load-graph">Choose file</label><input type="file" id="load-graph" />
+</fieldset>
 </div>
-<script src="static/lib/script.pn.js"></script>
+
+<div id="overlay"><div id="window"></div></div>
+
+<script src="static/lib/script.js"></script>
 </body>
 </html>
