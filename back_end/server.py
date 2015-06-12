@@ -37,6 +37,11 @@ class Server(tornado.websocket.WebSocketHandler):
                 return self.write_message(self.main.get_graph_features())
             except AttributeError:
                 return self.write_message(json.dumps({'error': 'Network is empty. Please send network parameters first.'}))
+        elif action_type is RequestType.VECTOR_NETWORK_CONSERVATIVE:
+            try:
+                return self.write_message(self.main.is_network_vector_conservative(receive_data))
+            except AttributeError:
+                return self.write_message(json.dumps({'error': 'Network is empty. Please send network parameters first.'}))
 
     def on_close(self):
         pass
@@ -45,8 +50,10 @@ class Server(tornado.websocket.WebSocketHandler):
 class MainPage(tornado.web.RequestHandler):
     def get(self):
         # This could be a template, too.
+        # self.render(root) # local dev mode
         self.render(os.path.join(root, '../front_end/index.html'))
 
+# root = '/home/czis/Pulpit/index.html' # local dev mode
 root = os.path.dirname(__file__)
 
 application = tornado.web.Application([

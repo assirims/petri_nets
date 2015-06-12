@@ -8,7 +8,7 @@ class IncidenceMatrixCreator(object):
         self.links = links
 
     def __initialize_incidence_matrix(self):
-        return numpy.zeros((len(self.places), len(self.transitions)))
+        return numpy.zeros((len(self.places), len(self.transitions)), dtype=numpy.int64)
 
     def create_incidence_matrix(self):
         incidence_matrix_in = self.__initialize_incidence_matrix()
@@ -20,5 +20,7 @@ class IncidenceMatrixCreator(object):
 
             for link_in in transition.links_in:
                 incidence_matrix_out[link_in.place.id-1][transition.id-1] = link_in.weight
+
+
 
         return incidence_matrix_in - incidence_matrix_out
