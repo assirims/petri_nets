@@ -9,6 +9,12 @@ class Helper(object):
         return elements
 
     @staticmethod
+    def find_state_by_id(states, id):
+        for state in states:
+            if state[0] == id:
+                return state
+
+    @staticmethod
     def find_place_by_id(places, id):
         return Helper.find_element_by_id(places, id)
 

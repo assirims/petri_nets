@@ -50,8 +50,10 @@ class Server(tornado.websocket.WebSocketHandler):
 class MainPage(tornado.web.RequestHandler):
     def get(self):
         # This could be a template, too.
+        # self.render(root) # local dev mode
         self.render(os.path.join(root, '../front_end/index.html'))
 
+# root = '/home/czis/Pulpit/index.html' # local dev mode
 root = os.path.dirname(__file__)
 
 application = tornado.web.Application([

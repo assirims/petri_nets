@@ -8,6 +8,7 @@ from lib.liveness_checker import LivenessChecker
 from lib.reachability_graph import ReachabilityGraph
 from lib.helper import Helper
 from lib.incidence_matrix_creator import IncidenceMatrixCreator
+from lib.reversibility_checker import ReversibilityChecker
 
 
 class RequestType(object):
@@ -29,6 +30,7 @@ class GraphFeatureType(object):
     IS_NETWORK_CONSERVATIVE = 8
     IS_NETWORK_LIVE = 9
     TRANSITIONS_LIVENESS = 10
+    IS_NETWORK_REVERSIBLE = 11
 
 
 class Main(object):
@@ -72,7 +74,8 @@ class Main(object):
             GraphFeatureType.IS_NETWORK_SAFE: self.__is_network_safe(),
             GraphFeatureType.IS_NETWORK_CONSERVATIVE: self.__is_network_conservative(),
             GraphFeatureType.IS_NETWORK_LIVE: self.__is_network_live(),
-            GraphFeatureType.TRANSITIONS_LIVENESS: self.__transitions_liveness()
+            GraphFeatureType.TRANSITIONS_LIVENESS: self.__transitions_liveness(),
+            GraphFeatureType.IS_NETWORK_REVERSIBLE: self.__is_network_reversible()
         }
 
         return self.__json_type_wrapper(RequestType.GRAPH_FEATURES, data)
@@ -134,3 +137,8 @@ class Main(object):
         states_list = CoverabilityGraph(self.transitions).get_graph()
         liveness = LivenessChecker(self.transitions, states_list)
         return liveness.get_transitions_liveness()
+
+    def __is_network_reversible(self):
+        states_list = CoverabilityGraph(self.transitions).get_graph()
+        reversibility_checker = ReversibilityChecker(states_list)
+        return reversibility_checker.is_network_reversible()
