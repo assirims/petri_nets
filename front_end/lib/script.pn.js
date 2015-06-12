@@ -295,12 +295,16 @@ socket = new WebSocket("ws://localhost:8888/websocket");
 
 //response handler
 socket.onmessage = function(e) {
-	var data = JSON.parse(e.data);
-	switch(data.type) {
-		case 2:
-			deserializeGraph(data.data);
-		break;
-		}
+
+    // temporary fix - think about better solution
+    try {
+    var data = JSON.parse(e.data);
+    switch(data.type) {
+        case 2:
+            deserializeGraph(data.data);
+        break;
+        }
+    } catch (err) {}
 	console.log(e.data);
 	};
 
@@ -322,7 +326,7 @@ $('#simulation-step').click(stepSimulation);
 //start simulation
 function startSimulation() {
 	sendGraph();
-	simulation = setInterval(stepSimulation(), 2000);
+	simulation = setInterval(stepSimulation, 2000);
 	}
 
 $('#simulation-start').click(startSimulation);

@@ -45,13 +45,15 @@ class Main(object):
 
     def simulate(self):
         live_transitions = self.__get_live_transitions()
+
         if not live_transitions:
             return self.__json_type_wrapper(RequestType.END)
 
         transition = random.sample(live_transitions, 1)[0]
 
         priority_queue = Helper.get_competitive_transitions_priority_queue(self.transitions, transition)
-        priority_queue.get().run_transition()
+        transition = priority_queue.get()
+        transition.run_transition()
 
         return self.__json_type_wrapper(RequestType.SIMULATE, transition.to_json(), True)
 
