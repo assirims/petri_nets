@@ -56,16 +56,12 @@ petrinet.addCell([
 
 //add place
 function addPlace(xPos, yPos, label, tokens) {
-	petrinet.addCell([
-		new pn.Place({ position: { x: xPos - 32, y: yPos - 32 }, attrs: { '.label': { text: label } }, name: label, tokens: parseInt(tokens) })
-		]);
+	petrinet.addCell(new pn.Place({ position: { x: xPos - 32, y: yPos - 32 }, attrs: { '.label': { text: label } }, name: label, tokens: parseInt(tokens) }));
 	}
 
 //add transitions
 function addTrans(xPos, yPos, label, priority) {
-	petrinet.addCell([
-		new pn.Transition({ position: { x: xPos - 13, y: yPos - 32 }, attrs: { '.label': { text: label } }, name: label, priority: parseInt(priority) })
-		]);
+	petrinet.addCell(new pn.Transition({ position: { x: xPos - 13, y: yPos - 32 }, attrs: { '.label': { text: label } }, name: label, priority: parseInt(priority) }));
 	}
 	
 //add cell mode
@@ -79,14 +75,10 @@ $('#add-trans').change(function() {
 	
 //validate node
 function validateNode() {
-	if($('#add-label').val().trim() && getByName($('#add-label').val()) == null && $('#add-content').val().trim() && Number.isInteger(parseInt($('#add-content').val()))) {
-		$('#add-info').empty();
+	if($('#add-label').val().trim() && getByName($('#add-label').val()) == null && $('#add-content').val().trim() && Number.isInteger(parseInt($('#add-content').val())))
 		return true;
-		}
-	else {
-		$('#add-info').html('Fill in inputs with correct values to add');
+	else
 		return false;
-		}
 	}
 
 $('#paper').dblclick(function() {
@@ -100,6 +92,7 @@ $('#paper').dblclick(function() {
 		}
 	else {
 		console.log('ERROR: Invalid node data');
+		alertMsg('Invalid node data');
 		}
 	});
 	
@@ -161,11 +154,13 @@ function transArray() {
 function linkArray() {
 	return petrinet.getLinks();
 	}
-	
+
 //delete cell
-$('#paper').delegate('.pn', 'dblclick', function() {
-	petrinet.getCell($(this).attr('model-id')).remove();
-	updatePanel();
+$('#paper').delegate('.pn', 'mousedown', function(e) {
+	if(e.which == 2) {
+		petrinet.getCell($(this).attr('model-id')).remove();
+		updatePanel();
+		}
 	});
 
 //link direction
@@ -194,12 +189,11 @@ function addLink(nodes, direction, weight) {
 		$('#add-label, #add-content').val('');
 		if(direction)
 			nodes.reverse();
-		petrinet.addCell([
-			new pn.Link({ source: { id: nodes[0], selector: '.root' }, target: { id: nodes[1], selector: '.root' }, labels: [{ position: .5, attrs: { text: { text: parseInt(weight) } } }], direction: direction, weight: parseInt(weight) })
-			]);
+		petrinet.addCell(new pn.Link({ source: { id: nodes[0], selector: '.root' }, target: { id: nodes[1], selector: '.root' }, labels: [{ position: .5, attrs: { text: { text: parseInt(weight) } } }], direction: direction, weight: parseInt(weight) }));
 		}
 	else {
 		console.log('ERROR: Invalid link data or duplicate');
+		alertMsg('Invalid link data or duplicate');
 		}
 	}
 
@@ -207,17 +201,37 @@ $('#link').click(function() {
 	addLink([$('#link-place').val(), $('#link-trans').val()], $('#link-direction').data('direction'), $('#link-weight').val())
 	});
 
+//open simulation mode
+$('#simulation').click(function() {
+	$('#build-tab').hide();
+	$('#simulation-tab').show();
+	sendGraph();
+	});
+
+//open build mode
+$('#build').click(function() {
+	$('#simulation-tab').hide();
+	$('#build-tab').show();
+	});
+
+//alert message
+function alertMsg(msg) {
+	$('#info').html(msg);
+	$('#info').fadeIn('slow');
+	setTimeout(function() { $('#info').fadeOut('slow'); }, 4000);
+	}
+
 //update panel
 function updatePanel() {
 	
-	$('#link-place, #link-trans').empty();
-
+	$('#link-place > optgroup, #link-trans > optgroup').empty();
+	
 	placeArray().forEach(function(e) {
-		$('#link-place').append($('<option>', { value: e.id, text: e.attr('.label').text }));
+		$('#link-place > optgroup').append($('<option>', { value: e.id, text: e.attr('.label').text }));
 		});
-
+		
 	transArray().forEach(function(e) {
-		$('#link-trans').append($('<option>', { value: e.id, text: e.attr('.label').text }));
+		$('#link-trans > optgroup').append($('<option>', { value: e.id, text: e.attr('.label').text }));
 		});
 	
 	if(!($('#link-place:has(option)').length && $('#link-trans:has(option)').length))
@@ -225,7 +239,14 @@ function updatePanel() {
 	else
 		$('#link').attr('disabled', false);
 	}
-	
+
+//update link arrows
+function updateLinks() {
+	petrinet.getLinks().forEach(function(e) {
+		e.attr({ '.marker-target': { d: 'M 10 0 L 0 5 L 10 10 z' } });
+		});
+	}
+
 //fire transition
 function fireTransition(trans, sec) {
 	var inbound = petrinet.getConnectedLinks(trans, { inbound: true });
@@ -303,11 +324,13 @@ function loadFromFile() {
 		reader.onload = function(e) {
 			petrinet.fromJSON(JSON.parse(reader.result));
 			updatePanel();
+			updateLinks();
 			}
 		reader.readAsText(file);
 		}
 	else {
 		console.log('ERROR: File not supported');
+		alertMsg('File not supported');
 		}
 	}
 	
@@ -326,6 +349,9 @@ socket.onmessage = function(e) {
         case 2:
             deserializeGraph(data.data);
         break;
+		case 3:
+			displayParams(data.data);
+		break;
         }
     } catch (err) {}
 	console.log(e.data);
@@ -333,6 +359,9 @@ socket.onmessage = function(e) {
 
 //simulation
 var simulation;
+
+//display parameters type
+var paramtype;
 
 //send graph
 function sendGraph() {
@@ -361,12 +390,92 @@ function stopSimulation() {
 	
 $('#simulation-stop').click(stopSimulation);
 
-//get parameters
-function graphParameters() {
+//get graph parameters
+function getParams() {
 	socket.send('{"type":3,"data":""}');
 	}
+	
+$('button[data-type]').click(function() { paramtype = $(this).data('type'); getParams(); });
 
-$('#graph-parameters').click(graphParameters);
+//---------------TEST DATA
+
+var dataR={"data": {"1": [[-1.0, 1.0, 0.0, 0.0], [1.0, -1.0, 0.0, 0.0], [0.0, 2.0, -1.0, -1.0], [0.0, 0.0, 3.0, 0.0], [0.0, 0.0, 0.0, 1.0]], "2": [1, 3, 4], "3": [[0, 0, [1, 0, 1, 0, 0], {}, null], [1, 0, [0, 1, 1, 0, 0], {}, 1], [2, 0, [1, 0, 0, 0, 1], {"4": 1}, 4], [3, 1, [1, 0, 3, 0, 0], {}, 2], [4, 1, [0, 1, 0, 0, 1], {"6": 2}, 4], [5, 3, [0, 1, 3, 0, 0], {}, 1], [6, 3, [1, 0, 2, 0, 1], {"8": 1}, 4], [7, 5, [1, 0, 5, 0, 0], {}, 2], [8, 5, [0, 1, 2, 0, 1], {"11": 2}, 4], [9, 6, [1, 0, 1, 0, 2], {"12": 1}, 4], [10, 7, [0, 1, 5, 0, 0], {}, 1], [11, 7, [1, 0, 4, 0, 1], {}, 4], [12, 8, [0, 1, 1, 0, 2], {}, 4], [13, 9, [1, 0, 0, 0, 3], {}, 4], [14, 10, [1, 0, 7, 0, 0], {}, 2], [15, 10, [0, 1, 4, 0, 1], {}, 4]], "4": [[0, 0, [1, 0, 1, 0, 0], {}, null], [1, 0, [0, 1, 1, 0, 0], {}, 1], [2, 0, [1, 0, 0, 0, 1], {"4": 1}, 4], [3, 1, [1, 0, Infinity, 0, 0], {}, 2], [4, 1, [0, 1, 0, 0, 1], {"6": 2}, 4], [5, 3, [0, 1, Infinity, 0, 0], {"3": 2}, 1], [6, 3, [1, 0, Infinity, 0, Infinity], {"6": 4, "7": 1}, 4], [7, 5, [0, 1, Infinity, 0, Infinity], {"6": 2, "7": 4}, 4]], "5": [1, 1, Infinity, 0, Infinity], "6": false, "7": false, "8": false}, "type": 3};
+
+var dataM=dataR.data;
+
+//---------------TEST DATA
+
+//!display graph parameters
+function displayParams(data) {
+	$('#overlay').fadeIn();
+	switch(paramtype) {
+		case 1:
+			$('#box').append('INCIDENCE_MATRIX<br />');
+			dataM[1].forEach(function(e) { $('#box').append(e + '<br />'); });
+		break;
+		case 2:
+			$('#box').append('LIVE_TRANSITIONS: ' + dataM[2]);
+		break;
+		case 3:
+			drawGraph(dataM[3]);
+		break;
+		case 4:
+			drawGraph(dataM[4]);
+		break;
+		case 5:
+			$('#box').append('PLACES_K_BOUNDED: ' + dataM[5]);
+		break;
+		case 6:
+			$('#box').append('IS_NETWORK_K_BOUNDED: ' + dataM[6]);
+		break;
+		case 7:
+			$('#box').append('IS_NETWORK_SAFE: ' + dataM[7]);
+		break;
+		case 8:
+			$('#box').append('IS_NETWORK_CONSERVATIVE: ' + dataM[8]);
+		break;
+		}
+	}
+	
+//!draw graph
+function drawGraph(data) {
+	var graph = new joint.dia.Graph;
+	
+	var paper = new joint.dia.Paper({ el: $('#box'), width: windowDim.width, height: 1000, gridSize: 1, model: graph });
+	
+	//create graph cells
+	data.forEach(function(e, i) {
+		graph.addCell(new joint.shapes.fsa.State({ size: { width: 40, height: 40 }, attrs: { text : { text: e[2], 'font-size': 7 } } }));
+		});
+
+	//hilight root cell
+	graph.getElements()[0].attr({ 'circle': { stroke: '#33DE1D' } });
+	
+	//create graph links
+	data.forEach(function(oe, oi) {
+		if(oi > 0)
+			graph.addCell(new joint.shapes.fsa.Arrow({ source: { id: graph.getElements()[oi].id }, target: { id: graph.getElements()[oe[1]].id }, labels: [{ position: .5, attrs: { text: { text: transArray()[oe[4]%3].prop('name') } } }], smooth: false }));
+		
+		$.map(oe[3], function(ie, ii) {
+			graph.addCell(new joint.shapes.fsa.Arrow({ source: { id: graph.getElements()[oi].id }, target: { id: graph.getElements()[ii].id }, labels: [{ position: .5, attrs: { text: { text: transArray()[ie%3].prop('name') } } }], smooth: false }));
+			});
+		});
+
+	//graph force directed layout
+	var graphLayout = new joint.layout.ForceDirected({ graph: graph, width: windowDim.width, height: 1000, gravityCenter: { x: windowDim.width/2, y: 500 }, charge: 2500, linkDistance: 70 });
+	
+	graphLayout.start();
+	
+	function forceLayout() {
+		joint.util.nextFrame(forceLayout);
+		graphLayout.step();
+		}
+		
+	//forceLayout();
+	}
+
+//close overlay
+$('#close').click(function() { $('#overlay').fadeOut(); $('#box').empty(); });
 
 //application onload
 $(function() {
@@ -374,122 +483,3 @@ $(function() {
 	$('#overlay').hide();
 	$('#simulation').trigger('click');
 	});
-	
-//-------------TESTS------------------------------
-
-
-var dane={"data": {"1": [[-1.0, 1.0, 0.0, 0.0], [1.0, -1.0, 0.0, 0.0], [0.0, 2.0, -1.0, -1.0], [0.0, 0.0, 3.0, 0.0], [0.0, 0.0, 0.0, 1.0]], "2": [1, 3, 4], "3": [[0, 0, [1, 0, 1, 0, 0], {}, null], [1, 0, [0, 1, 1, 0, 0], {}, 1], [2, 0, [1, 0, 0, 0, 1], {"4": 1}, 4], [3, 1, [1, 0, 3, 0, 0], {}, 2], [4, 1, [0, 1, 0, 0, 1], {"6": 2}, 4], [5, 3, [0, 1, 3, 0, 0], {}, 1], [6, 3, [1, 0, 2, 0, 1], {"8": 1}, 4], [7, 5, [1, 0, 5, 0, 0], {}, 2], [8, 5, [0, 1, 2, 0, 1], {"11": 2}, 4], [9, 6, [1, 0, 1, 0, 2], {"12": 1}, 4], [10, 7, [0, 1, 5, 0, 0], {}, 1], [11, 7, [1, 0, 4, 0, 1], {}, 4], [12, 8, [0, 1, 1, 0, 2], {}, 4], [13, 9, [1, 0, 0, 0, 3], {}, 4], [14, 10, [1, 0, 7, 0, 0], {}, 2], [15, 10, [0, 1, 4, 0, 1], {}, 4]], "4": [[0, 0, [1, 0, 1, 0, 0], {}, null], [1, 0, [0, 1, 1, 0, 0], {}, 1], [2, 0, [1, 0, 0, 0, 1], {"4": 1}, 4], [3, 1, [1, 0, Infinity, 0, 0], {}, 2], [4, 1, [0, 1, 0, 0, 1], {"6": 2}, 4], [5, 3, [0, 1, Infinity, 0, 0], {"3": 2}, 1], [6, 3, [1, 0, Infinity, 0, Infinity], {"6": 4, "7": 1}, 4], [7, 5, [0, 1, Infinity, 0, Infinity], {"6": 2, "7": 4}, 4]], "5": [1, 1, Infinity, 0, Infinity], "6": false, "7": false, "8": false}, "type": 3};
-
-
-
-
-function graphParameters() {
-	$('#overlay').show();
-	 animate();
-	}
-	
-$('#graph-parameters').click(graphParameters);
-	
-	
- 
-
-var graph = new joint.dia.Graph;
-	
-	
-	var paper = new joint.dia.Paper({
-    el: $('#overlay'),
-    width: $(document).width(),
-    height: $(document).width(),
-    gridSize: 1,
-    model: graph,
-
-});
-
-
-function state(x, y, label) {
-    
-    var cell = new joint.shapes.fsa.State({
-		
-        size: { width: 40, height: 40 },
-        attrs: { text : { text: label, 'font-size': 7 }}
-    });
-    graph.addCell(cell);
-    return cell;
-};
-
-function link(source, target, label, vertices) {
-    
-    var cell = new joint.shapes.fsa.Arrow({
-        source: { id: source.id },
-        target: { id: target.id },
-		smooth: false,
-        labels: [{ position: .5, attrs: { text: { text: label } } }]
-    });
-    graph.addCell(cell);
-    return cell;
-}
-
-
-var testy = dane.data[3][2];
-
-dane.data[3].forEach(function(e, i) { 
-
-state(180, 390, e[2].toString());
-
- });
-
-dane.data[3].forEach(function(e, i) { 
-if(i>0)
-link(graph.getElements()[i],  graph.getElements()[e[1]], transArray()[e[4]%3].prop('name'));
-
-var array = $.map(e[3], function(value, index) {
-   
-   link(graph.getElements()[i],  graph.getElements()[index], transArray()[value%3].prop('name'));
-   
-});
-	
-
-});
-
-
-
-$('#build').click(
-	function() {
-		$('#simulation-tab').hide();
-		$('#build-tab').show();
-		}
-	);
-	$('#simulation').click(
-	function() {
-		$('#build-tab').hide();
-		$('#simulation-tab').show();
-		sendGraph();
-		}
-	);
-
-
-
-
-
-
-
-var graphLayout = new joint.layout.ForceDirected({
-	graph: graph,
-	width: $(document).width(), height: $(document).width(),
-	gravityCenter: { x: $(document).width()/2, y: $(document).width()/2 },
-	charge: 2500,
-	linkDistance: 70
-	});
-	
-graphLayout.start();
-	
-function animate() {
-	joint.util.nextFrame(animate);
-	graphLayout.step();
-	}
-	
-	
-	
-	
-	
-	
