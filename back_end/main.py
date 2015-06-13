@@ -16,7 +16,9 @@ class RequestType(object):
     SIMULATE = 2
     GRAPH_FEATURES = 3
     VECTOR_NETWORK_CONSERVATIVE = 4
-    END = 5
+    LIVE_TRANSITIONS = 5
+    RUN_SELECTED_TRANSITION = 6
+    END = 7
 
 
 class GraphFeatureType(object):
@@ -84,6 +86,14 @@ class Main(object):
         states_list = CoverabilityGraph(self.transitions).get_graph()
         conservative_checker = ConservativeChecker(self.places, states_list)
         return self.__json_type_wrapper(RequestType.VECTOR_NETWORK_CONSERVATIVE, conservative_checker.is_network_conservative(vector_coefficients))
+
+    def get_live_transitions(self):
+        return self.__json_type_wrapper(RequestType.LIVE_TRANSITIONS, self.__get_live_transitions_ids())
+
+    def run_selected_transitions(self, transition_id):
+        transition = Helper.find_transition_by_id(self.transitions, transition_id)
+        transition.run_transition()
+        return self.__json_type_wrapper(RequestType.RUN_SELECTED_TRANSITION, transition.to_json(), True)
 
     def __get_incidence_matrix(self):
         incidence_matrix_creator = IncidenceMatrixCreator(self.places, self.transitions, self.links)
