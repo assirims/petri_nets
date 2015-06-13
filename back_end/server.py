@@ -42,6 +42,16 @@ class Server(tornado.websocket.WebSocketHandler):
                 return self.write_message(self.main.is_network_vector_conservative(receive_data))
             except AttributeError:
                 return self.write_message(json.dumps({'error': 'Network is empty. Please send network parameters first.'}))
+        elif action_type is RequestType.LIVE_TRANSITIONS:
+            try:
+                return self.write_message(self.main.get_live_transitions())
+            except AttributeError:
+                return self.write_message(json.dumps({'error': 'Network is empty. Please send network parameters first.'}))
+        elif action_type is RequestType.RUN_SELECTED_TRANSITION:
+            try:
+                return self.write_message(self.main.run_selected_transitions(receive_data))
+            except AttributeError:
+                return self.write_message(json.dumps({'error': 'Network is empty. Please send network parameters first.'}))
 
     def on_close(self):
         pass

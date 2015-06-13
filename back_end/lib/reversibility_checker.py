@@ -29,8 +29,8 @@ class ReversibilityChecker(object):
                 states_queue.extend(filtered_state_children)
 
             print '-------------------------------'
-            # if not found_root_state:
-            #     return False
+            if not found_root_state:
+                return False
 
         return True
 
