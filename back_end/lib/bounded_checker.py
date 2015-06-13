@@ -22,8 +22,8 @@ class BoundedChecker(object):
         return self.places_k_bounded
 
     def is_network_k_bounded(self):
-        return self.places_k_bounded == [self.places_k_bounded[0] for token in xrange(len(self.places_k_bounded)-1)] \
+        return self.places_k_bounded == [self.places_k_bounded[0] for token in xrange(len(self.places_k_bounded))] \
             and self.places_k_bounded[0] != float("inf")
 
     def is_network_safe(self):
-        return self.places_k_bounded == [1 for token in xrange(len(self.places_k_bounded)-1)]
+        return self.places_k_bounded == [1 for token in xrange(len(self.places_k_bounded))]

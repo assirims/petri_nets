@@ -10,6 +10,9 @@ class LivenessChecker(object):
             if transition != None:
                 fired_transitions.append(state[4])
 
+            for child_transition in state[3].values():
+                fired_transitions.append(child_transition)
+
         fired_transitions = list(set(fired_transitions))
         return fired_transitions
 
