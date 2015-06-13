@@ -40,5 +40,8 @@ $ python server.py
 5. Type and run "pip install -r requirements.txt"
 6. Run the server "python server.py"
 
-NOTE: If point 5 does not succed try following commands:
-"pip install --upgrade setuptools" or "easy_install -U setuptools"
+NOTE 1: If point 5 does not succed try following commands:
+	"pip install --upgrade setuptools" or "easy_install -U setuptools"
+
+NOTE 2: If point 5 does not succed disable "read-only" setting for the project directory 
+	and run command prompt as an administrator
