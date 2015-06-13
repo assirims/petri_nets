@@ -1,8 +1,25 @@
+//window dimensions
+var windowDim = {};
+windowDim = {
+		width: $(document).width() - 5,
+		height: $(document).height() - 5
+		};
+
+//cursor position
+var cursorPos = {};
+
+$('#paper').mousemove(function(e){
+	cursorPos = {
+		x: e.pageX,
+		y: e.pageY
+		};
+	});
+
 //petri network
 var petrinet = new joint.dia.Graph;
 
 //paper
-var paper = new joint.dia.Paper({ el: $('#paper'), width: 1000, height: 330, gridSize: 10, perpendicularLinks: true, model: petrinet });
+var paper = new joint.dia.Paper({ el: $('#paper'), width: windowDim.width - 250, height: windowDim.height, gridSize: 10, perpendicularLinks: true, model: petrinet });
 
 var pn = joint.shapes.pn;
 
@@ -36,16 +53,6 @@ petrinet.addCell([
 	new pn.Link({ source: { id: transArray()[3].id, selector: '.root' }, target: { id: placeArray()[4].id, selector: '.root' }, labels: [{ position: .5, attrs: { text: { text: 1 } } }], direction: 1, weight: 1 }),
 	new pn.Link({ source: { id: placeArray()[4].id, selector: '.root' }, target: { id: transArray()[2].id, selector: '.root' }, labels: [{ position: .5, attrs: { text: { text: 1 } } }], direction: 0, weight: 1 })
 	]);
-
-//cursor position
-var cursorPos = {};
-
-$('#paper').mousemove(function(e){
-	cursorPos = {
-		x: e.pageX,
-		y: e.pageY
-		};
-	});
 
 //add place
 function addPlace(xPos, yPos, label, tokens) {
@@ -175,7 +182,7 @@ function validateLink(cells) {
 	var flag = true, array;
 	linkArray().forEach(function(e) {
 		array = [e.prop('source').id, e.prop('target').id];
-		if(!($(cells).not(array).length && $(array).not(cells).length))
+		if(!($(cells).not(array).length && $(array).not(cells).length) || !Number.isInteger(parseInt($('#link-weight').val())))
 			flag = false;
 		});
 	return flag;
@@ -188,11 +195,11 @@ function addLink(nodes, direction, weight) {
 		if(direction)
 			nodes.reverse();
 		petrinet.addCell([
-			new pn.Link({ source: { id: nodes[0], selector: '.root' }, target: { id: nodes[1], selector: '.root' }, labels: [{ position: .5, attrs: { text: { text: weight } } }], direction: direction, weight: weight })
+			new pn.Link({ source: { id: nodes[0], selector: '.root' }, target: { id: nodes[1], selector: '.root' }, labels: [{ position: .5, attrs: { text: { text: parseInt(weight) } } }], direction: direction, weight: parseInt(weight) })
 			]);
 		}
 	else {
-		console.log('ERROR: Duplicate link');
+		console.log('ERROR: Invalid link data or duplicate');
 		}
 	}
 
@@ -206,15 +213,17 @@ function updatePanel() {
 	$('#link-place, #link-trans').empty();
 
 	placeArray().forEach(function(e) {
-		$('#link-place').append($('<option>', {value: e.id, text: e.attr('.label').text}));
+		$('#link-place').append($('<option>', { value: e.id, text: e.attr('.label').text }));
 		});
 
 	transArray().forEach(function(e) {
-		$('#link-trans').append($('<option>', {value: e.id, text: e.attr('.label').text}));
+		$('#link-trans').append($('<option>', { value: e.id, text: e.attr('.label').text }));
 		});
 	
 	if(!($('#link-place:has(option)').length && $('#link-trans:has(option)').length))
-		$('#link').attr('disabled','disabled');
+		$('#link').attr('disabled', true);
+	else
+		$('#link').attr('disabled', false);
 	}
 	
 //fire transition
@@ -281,6 +290,8 @@ function deserializeGraph(data) {
 function saveToFile() {
 	saveAs(new Blob([JSON.stringify(petrinet.toJSON())], {type: 'text/plain;charset=utf-8'}), 'graph.txt');
 	}
+	
+$('#save-graph').click(saveToFile);
 	
 //load graph from file	
 function loadFromFile() {
@@ -360,6 +371,8 @@ $('#graph-parameters').click(graphParameters);
 //application onload
 $(function() {
 	updatePanel();
+	$('#overlay').hide();
+	$('#simulation').trigger('click');
 	});
 	
 //-------------TESTS------------------------------
@@ -367,33 +380,40 @@ $(function() {
 
 var dane={"data": {"1": [[-1.0, 1.0, 0.0, 0.0], [1.0, -1.0, 0.0, 0.0], [0.0, 2.0, -1.0, -1.0], [0.0, 0.0, 3.0, 0.0], [0.0, 0.0, 0.0, 1.0]], "2": [1, 3, 4], "3": [[0, 0, [1, 0, 1, 0, 0], {}, null], [1, 0, [0, 1, 1, 0, 0], {}, 1], [2, 0, [1, 0, 0, 0, 1], {"4": 1}, 4], [3, 1, [1, 0, 3, 0, 0], {}, 2], [4, 1, [0, 1, 0, 0, 1], {"6": 2}, 4], [5, 3, [0, 1, 3, 0, 0], {}, 1], [6, 3, [1, 0, 2, 0, 1], {"8": 1}, 4], [7, 5, [1, 0, 5, 0, 0], {}, 2], [8, 5, [0, 1, 2, 0, 1], {"11": 2}, 4], [9, 6, [1, 0, 1, 0, 2], {"12": 1}, 4], [10, 7, [0, 1, 5, 0, 0], {}, 1], [11, 7, [1, 0, 4, 0, 1], {}, 4], [12, 8, [0, 1, 1, 0, 2], {}, 4], [13, 9, [1, 0, 0, 0, 3], {}, 4], [14, 10, [1, 0, 7, 0, 0], {}, 2], [15, 10, [0, 1, 4, 0, 1], {}, 4]], "4": [[0, 0, [1, 0, 1, 0, 0], {}, null], [1, 0, [0, 1, 1, 0, 0], {}, 1], [2, 0, [1, 0, 0, 0, 1], {"4": 1}, 4], [3, 1, [1, 0, Infinity, 0, 0], {}, 2], [4, 1, [0, 1, 0, 0, 1], {"6": 2}, 4], [5, 3, [0, 1, Infinity, 0, 0], {"3": 2}, 1], [6, 3, [1, 0, Infinity, 0, Infinity], {"6": 4, "7": 1}, 4], [7, 5, [0, 1, Infinity, 0, Infinity], {"6": 2, "7": 4}, 4]], "5": [1, 1, Infinity, 0, Infinity], "6": false, "7": false, "8": false}, "type": 3};
 
-//dane.data[3].forEach(function(e) { console.log(e);
-//console.log(''); });
 
-function test1() {
 
+
+function graphParameters() {
 	$('#overlay').show();
-	
+	 animate();
 	}
 	
-	var graph2 = new joint.dia.Graph;
+$('#graph-parameters').click(graphParameters);
+	
+	
+ 
 
-var paper2 = new joint.dia.Paper({
-    el: $('#window'),
-    width: 800,
-    height: 600,
+var graph = new joint.dia.Graph;
+	
+	
+	var paper = new joint.dia.Paper({
+    el: $('#overlay'),
+    width: $(document).width(),
+    height: $(document).width(),
     gridSize: 1,
-    model: graph2
+    model: graph,
+
 });
+
 
 function state(x, y, label) {
     
     var cell = new joint.shapes.fsa.State({
-        position: { x: x, y: y },
-        size: { width: 60, height: 60 },
-        attrs: { text : { text: label }}
+		
+        size: { width: 40, height: 40 },
+        attrs: { text : { text: label, 'font-size': 7 }}
     });
-    graph2.addCell(cell);
+    graph.addCell(cell);
     return cell;
 };
 
@@ -402,31 +422,74 @@ function link(source, target, label, vertices) {
     var cell = new joint.shapes.fsa.Arrow({
         source: { id: source.id },
         target: { id: target.id },
-        labels: [{ position: .5, attrs: { text: { text: label || '', 'font-weight': 'bold' } } }],
-        vertices: vertices || []
+		smooth: false,
+        labels: [{ position: .5, attrs: { text: { text: label } } }]
     });
-    graph2.addCell(cell);
+    graph.addCell(cell);
     return cell;
 }
 
-var start = new joint.shapes.fsa.StartState({ position: { x: 50, y: 530 } });
-graph2.addCell(start);
 
-var code  = state(180, 390, 'code');
-var slash = state(340, 220, 'slash');
-var star  = state(600, 400, 'star');
-var line  = state(190, 100, 'line');
-var block = state(560, 140, 'block');
+var testy = dane.data[3][2];
 
-link(start, code,  'start');
-link(code,  slash, '/');
-link(slash, code,  'other');
-link(slash, line,  '/');
-link(line,  code,  'new\n line');
-link(slash, block, '*');
-link(block, star,  '*');
-link(star,  block, 'other');
-link(star,  code,  '/');
-link(line,  line,  'other');
-link(block, block, 'other');
-link(code,  code,  'other');
+dane.data[3].forEach(function(e, i) { 
+
+state(180, 390, e[2].toString());
+
+ });
+
+dane.data[3].forEach(function(e, i) { 
+if(i>0)
+link(graph.getElements()[i],  graph.getElements()[e[1]], transArray()[e[4]%3].prop('name'));
+
+var array = $.map(e[3], function(value, index) {
+   
+   link(graph.getElements()[i],  graph.getElements()[index], transArray()[value%3].prop('name'));
+   
+});
+	
+
+});
+
+
+
+$('#build').click(
+	function() {
+		$('#simulation-tab').hide();
+		$('#build-tab').show();
+		}
+	);
+	$('#simulation').click(
+	function() {
+		$('#build-tab').hide();
+		$('#simulation-tab').show();
+		sendGraph();
+		}
+	);
+
+
+
+
+
+
+
+var graphLayout = new joint.layout.ForceDirected({
+	graph: graph,
+	width: $(document).width(), height: $(document).width(),
+	gravityCenter: { x: $(document).width()/2, y: $(document).width()/2 },
+	charge: 2500,
+	linkDistance: 70
+	});
+	
+graphLayout.start();
+	
+function animate() {
+	joint.util.nextFrame(animate);
+	graphLayout.step();
+	}
+	
+	
+	
+	
+	
+	
