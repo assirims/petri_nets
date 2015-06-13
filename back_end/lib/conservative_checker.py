@@ -11,7 +11,7 @@ class ConservativeChecker(object):
         for state in self.states_list:
             states_tokens_sum = 0
             for i in xrange(len(state[2])):
-                states_tokens_sum = state[2][i] * vector_coefficients[i]
+                states_tokens_sum += state[2][i] * vector_coefficients[i]
 
             if root_state_sum == -1:
                 root_state_sum = states_tokens_sum
