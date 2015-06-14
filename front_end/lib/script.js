@@ -398,7 +398,6 @@ $('#simulation-step').click(stepSimulation);
 
 //start simulation
 function startSimulation() {
-	sendGraph();
 	simulation = setInterval(stepSimulation, 2000);
 	}
 
@@ -532,5 +531,5 @@ $('#close').click(function() { $('#overlay').fadeOut(); destroy = true; $('#box'
 $(function() {
 	updatePanel();
 	$('#overlay').hide();
-	$('#simulation').trigger('click');
+	$('#build').trigger('click');
 	});      
