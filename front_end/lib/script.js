@@ -346,7 +346,8 @@ socket.onmessage = function(e) {
     try {
     var data = JSON.parse(e.data);
     switch(data.type) {
-        case 2, 6:
+        case 2:
+		case 6:
             deserializeGraph(data.data);
         break;
 		case 3:
@@ -398,6 +399,9 @@ $('#fire-trans > optgroup').click(function(e) {
 $('#simulation-step').click(function() {
 	stepSimulation();
 	socket.send('{ "type" : 5, "data" :"" }');
+	transArray().forEach(function(e) {
+		e.attr({ 'rect': { fill: '#000000' } });
+		});
 	});
 
 //start simulation
