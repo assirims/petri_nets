@@ -369,6 +369,7 @@ var paramtype;
 //send graph
 function sendGraph() {
 	socket.send('{ "type": 1, '+ serializeGraph() +' }');
+	socket.send('{ "type": 5, "data" : "" }');
 	}
 
 //simulation step
@@ -394,7 +395,10 @@ $('#fire-trans > optgroup').click(function(e) {
 		});
 	});
 	
-$('#simulation-step').click(stepSimulation);
+$('#simulation-step').click(function() {
+	stepSimulation();
+	socket.send('{ "type" : 5, "data" :"" }');
+	});
 
 //start simulation
 function startSimulation() {
