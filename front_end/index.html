@@ -4,91 +4,198 @@
 <meta charset="UTF-8" />
 <link rel="stylesheet" type="text/css" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css">
 <link rel="stylesheet" type="text/css" href="static/lib/joint.css" />
-<script src="static/lib/joint.js"></script>
-<script src="static/lib/joint.shapes.pn.js"></script>
-<script src="static/lib/joint.shapes.fsa.js"></script>
-<script src="static/lib/FileSaver.js"></script>
-<title>Petri Net</title>
-</head>
-<body>
-<div id="paper" class="paper">
-</div>
 <style>
-#simulation-panel {
+hr {
+	margin-top: 5px;
+	margin-bottom: 5px;
+	}
+input[type=text], select {
+	height: 20px;
+	font-size: 11px;
+	}
+input[type=text] {
+	float: right;
+	width: 170px;
+	}
+select {
+	width: 100px;
+	}
+span {
+	display: block;
+	margin-top: 7px;
+	margin-bottom: 7px;
+	}
+buttons {
+	margin-top: 7px;
+	margin-bottom: 7px;
+	}
+label {
+	font-weight: normal;
+	}
+table, td{
+	border: 1px solid black;
+	}
+table {
+	margin: 20px;
+	}
+td {
+	padding: 5px 10px;
+	text-align: right;
+	}
+#link-direction {
+	margin-left: 3px;
+	margin-right: 3px;
+	}
+#panel {
 	position: fixed;
-	top: 20px;
-	right: 20px;
+	top: 0;
+	right: 0;
+	bottom: 0;
+	width: 250px;
+	border-left: 1px solid lightgrey;
+	}
+#simulation-tab, #build-tab {
+	padding: 10px;
+	}
+#simulation-tab > button {
+	width: 100%;
+	margin-bottom: 10px;
+	}
+#control > button {
+	width: 100px;
+	margin: 10px;
 	}
 #overlay {
-	display: none;
 	position: fixed;
 	top: 0;
 	bottom: 0;
 	left: 0;
 	right: 0;
-	background: rgba(0,0,0,0.7);
+	background: white;
+	overflow-x: hidden;
+	overflow-y: scroll;
 	z-index: 100;
 	}
-#window {
-	height: 70%;
-	width: 70%;
-	margin: 50px auto;
-	background: #FFFFFF;
+#box {
+	height: 100%;
+	width: 100%;
+	}
+#build-tab button {
+	width: 100%;
+	}
+#info {
+	width: 100%;
+	}
+#close {
+	position: absolute;
+	top: 20px;
+	right: 20px;
+	font-size: 30px;
+	}
+#fire-trans {
+	width: 100%;
 	}
 </style>
-<div id="simulation-panel">
-<button id="simulation-step" class="btn btn-info">Simulation step</button>
-<br />
-<br />
-<button id="simulation-start" class="btn btn-success">Start simulation</button>
-<br />
-<br />
-<button id="simulation-stop" class="btn btn-danger">Stop simulation</button>
-<br />
-<br />
-<button id="graph-parameters" class="btn btn-warning">Graph parameters</button>
+<script src="static/lib/joint.js"></script>
+<script src="static/lib/joint.shapes.pn.js"></script>
+<script src="static/lib/joint.shapes.fsa.js"></script>
+<script src="static/lib/joint.layout.ForceDirected.js"></script>
+<script src="static/lib/FileSaver.js"></script>
+<title>Petri Net</title>
+</head>
+<body>
+<div id="paper">
 </div>
 <div id="panel">
-<fieldset>
-<legend>Add place/transition</legend>
+<div id="control">
+<button id="simulation" class="btn btn-default">Simulation</button>
+<button id="build" class="btn btn-default">Build graph</button>
+</div>
+<hr />
+<div id="simulation-tab">
+<h4>
+Automatic simulation
+</h4>
+<hr />
+<button id="simulation-start" class="btn btn-success btn-xs">Start simulation</button>
+<button id="simulation-stop" class="btn btn-danger btn-xs">Stop simulation</button>
+<br />
+<h4>
+Step simulation
+</h4>
+<hr />
+<button id="simulation-step" class="btn btn-info btn-xs">Simulation step</button>
+<select id="fire-trans" size="6">
+<optgroup label="Choose transition"></optgroup>
+</select>
+<br />
+<h4>
+Graph parameters
+</h4>
+<hr />
+<button id="incidence-matrix" data-type="1" class="btn btn-default btn-xs">Incidence matrix</button>
+<button id="reachability-graph" data-type="2" class="btn btn-default btn-xs">Reachability graph</button>
+<button id="coverability-graph" data-type="3" class="btn btn-default btn-xs">Coverability graph</button>
+<button id="graph-parameters" data-type="4" class="btn btn-default btn-xs">Graph parameters</button>
+</div>
+<div id="build-tab">
+<span id="info" class="label label-danger"></span>
+<h4>
+Add place/transition
+</h4>
+<hr />
+<span>
 <label for="add-place" class="checkbox-inline"><input type="radio" name="add-type" value="place" id="add-place" checked /> Place</label>
 <label for="add-trans" class="checkbox-inline"><input type="radio" name="add-type" value="trans" id="add-trans" /> Transition</label>
-&nbsp;
-&nbsp;
+</span>
+<span>
 <label for="add-label">Name</label> <input type="text" id="add-label" />
-&nbsp;
-&nbsp;
+</span>
+<span>
 <label for="add-content">Tokens</label> <input type="text" id="add-content" />
-&nbsp;
-&nbsp;
-<span id="add-info"></span>
-</fieldset>
+</span>
 <br />
-<fieldset>
-<legend>Add link</legend>
-&nbsp;
-&nbsp;
-<button id="link" class="btn btn-primary btn-xs">Link</button>
-&nbsp;
-&nbsp;
-Place <select id="link-place"></select>
+<h4>
+Add link
+</h4>
+<hr />
+<span>
+<select id="link-place">
+<optgroup label="Places"></optgroup>
+</select>
 <span class="glyphicon glyphicon-arrow-right" data-direction="0" id="link-direction"></span>
-Transition <select id="link-trans"></select>
-&nbsp;
-&nbsp;
-<label for="link-weight">Weight</label><input type="text" id="link-weight" />
-</fieldset>
+<select id="link-trans">
+<optgroup label="Transitions"></optgroup>
+</select>
+</span>
+<span>
+<label for="link-weight">Weight</label> <input type="text" value="1" id="link-weight" />
+</span>
+<span>
+<button id="link" class="btn btn-primary btn-xs">Link</button>
+</span>
 <br />
-<fieldset>
-<legend>Load graph from file</legend>
-&nbsp;
-&nbsp;
-<label for="load-graph">Choose file</label><input type="file" id="load-graph" />
-</fieldset>
+<h4>
+Save graph
+</h4>
+<hr />
+<span>
+<button id="save-graph" class="btn btn-primary btn-xs">Save to desktop</button>
+</span>
+<br />
+<h4>
+Load graph
+</h4>
+<hr />
+<span>
+<input type="file" id="load-graph" />
+</span>
 </div>
-
-<div id="overlay"><div id="window"></div></div>
-
+</div>
+<div id="overlay">
+<div id="box"></div>
+<span class="glyphicon glyphicon-remove" id="close"></span>
+</div>
 <script src="static/lib/script.js"></script>
 </body>
 </html>
