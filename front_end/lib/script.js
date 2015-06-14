@@ -34,10 +34,10 @@ petrinet.addCell([
 
 //create model transitions
 petrinet.addCell([
-	new pn.Transition({ position: { x: 50, y: 160 }, attrs: { '.label': { text: 't1' } }, name: 't1', priority: 1 }),
-	new pn.Transition({ position: { x: 270, y: 160 }, attrs: { '.label': { text: 't2' } }, name: 't2', priority: 1 }),
-	new pn.Transition({ position: { x: 470, y: 160 }, attrs: { '.label': { text: 't3' } }, name: 't3', priority: 1 }),
-	new pn.Transition({ position: { x: 680, y: 160 }, attrs: { '.label': { text: 't4' } }, name: 't4', priority: 1 })
+	new pn.Transition({ position: { x: 50, y: 160 }, attrs: { '.label': { text: 't1 [1]' } }, name: 't1', priority: 1 }),
+	new pn.Transition({ position: { x: 270, y: 160 }, attrs: { '.label': { text: 't2 [1]' } }, name: 't2', priority: 1 }),
+	new pn.Transition({ position: { x: 470, y: 160 }, attrs: { '.label': { text: 't3 [1]' } }, name: 't3', priority: 1 }),
+	new pn.Transition({ position: { x: 680, y: 160 }, attrs: { '.label': { text: 't4 [1]' } }, name: 't4', priority: 1 })
 	]);
 	
 //create model links
@@ -61,7 +61,7 @@ function addPlace(xPos, yPos, label, tokens) {
 
 //add transitions
 function addTrans(xPos, yPos, label, priority) {
-	petrinet.addCell(new pn.Transition({ position: { x: xPos - 13, y: yPos - 32 }, attrs: { '.label': { text: label } }, name: label, priority: parseInt(priority) }));
+	petrinet.addCell(new pn.Transition({ position: { x: xPos - 13, y: yPos - 32 }, attrs: { '.label': { text: label + ' [' + priority + ']' } }, name: label, priority: parseInt(priority) }));
 	}
 	
 //add cell mode
@@ -352,6 +352,9 @@ socket.onmessage = function(e) {
 		case 3:
 			displayParams(data.data);
 		break;
+		case 5:
+			availableTrans(data.data);
+		break;
         }
     } catch (err) {}
 	console.log(e.data);
@@ -365,14 +368,32 @@ var paramtype;
 
 //send graph
 function sendGraph() {
-	socket.send('{"type":1,'+ serializeGraph() +'}');
+	socket.send('{ "type": 1, '+ serializeGraph() +' }');
 	}
 
 //simulation step
 function stepSimulation() {
-	socket.send('{"type":2,"data":""}');
+	socket.send('{ "type": 2, "data": "" }');
 	}
 
+//list available transitions
+function availableTrans(ids) {
+	ids.forEach(function(e) {
+		$('#fire-trans > optgroup').append($('<option>', { value: e, text: transArray()[e].prop('name') }));
+		transArray()[e].attr({ 'rect': { fill: '#33DE1D' } });
+		});
+	}
+
+//fire transaction from list	
+$('#fire-trans > optgroup').click(function(e) {
+	socket.send('{ "type" : 6, "data" : ' + $('#fire-trans').val() + ' }');
+	socket.send('{ "type" : 5, "data" :"" }');
+	$(this).empty();
+	transArray().forEach(function(e) {
+		e.attr({ 'rect': { fill: '#000000' } });
+		});
+	});
+	
 $('#simulation-step').click(stepSimulation);
 
 //start simulation
@@ -392,53 +413,60 @@ $('#simulation-stop').click(stopSimulation);
 
 //get graph parameters
 function getParams() {
-	socket.send('{"type":3,"data":""}');
+	socket.send('{ "type" : 3 , "data" : "" }');
 	}
 	
 $('button[data-type]').click(function() { paramtype = $(this).data('type'); getParams(); });
 
-//---------------TEST DATA
-
+//TEST DATA
 var dataR={"data": {"1": [[-1.0, 1.0, 0.0, 0.0], [1.0, -1.0, 0.0, 0.0], [0.0, 2.0, -1.0, -1.0], [0.0, 0.0, 3.0, 0.0], [0.0, 0.0, 0.0, 1.0]], "2": [1, 3, 4], "3": [[0, 0, [1, 0, 1, 0, 0], {}, null], [1, 0, [0, 1, 1, 0, 0], {}, 1], [2, 0, [1, 0, 0, 0, 1], {"4": 1}, 4], [3, 1, [1, 0, 3, 0, 0], {}, 2], [4, 1, [0, 1, 0, 0, 1], {"6": 2}, 4], [5, 3, [0, 1, 3, 0, 0], {}, 1], [6, 3, [1, 0, 2, 0, 1], {"8": 1}, 4], [7, 5, [1, 0, 5, 0, 0], {}, 2], [8, 5, [0, 1, 2, 0, 1], {"11": 2}, 4], [9, 6, [1, 0, 1, 0, 2], {"12": 1}, 4], [10, 7, [0, 1, 5, 0, 0], {}, 1], [11, 7, [1, 0, 4, 0, 1], {}, 4], [12, 8, [0, 1, 1, 0, 2], {}, 4], [13, 9, [1, 0, 0, 0, 3], {}, 4], [14, 10, [1, 0, 7, 0, 0], {}, 2], [15, 10, [0, 1, 4, 0, 1], {}, 4]], "4": [[0, 0, [1, 0, 1, 0, 0], {}, null], [1, 0, [0, 1, 1, 0, 0], {}, 1], [2, 0, [1, 0, 0, 0, 1], {"4": 1}, 4], [3, 1, [1, 0, Infinity, 0, 0], {}, 2], [4, 1, [0, 1, 0, 0, 1], {"6": 2}, 4], [5, 3, [0, 1, Infinity, 0, 0], {"3": 2}, 1], [6, 3, [1, 0, Infinity, 0, Infinity], {"6": 4, "7": 1}, 4], [7, 5, [0, 1, Infinity, 0, Infinity], {"6": 2, "7": 4}, 4]], "5": [1, 1, Infinity, 0, Infinity], "6": false, "7": false, "8": false}, "type": 3};
 
 var dataM=dataR.data;
+//TEST DATA
 
-//---------------TEST DATA
-
-//!display graph parameters
+//display graph parameters
 function displayParams(data) {
 	$('#overlay').fadeIn();
 	switch(paramtype) {
 		case 1:
-			$('#box').append('INCIDENCE_MATRIX<br />');
-			dataM[1].forEach(function(e) { $('#box').append(e + '<br />'); });
+			$('#box').append($('<table>', { id: 'matrix' }));
+			data[1].forEach(function(oe, oi) {
+				$('#box > table').append('<tr>');
+				var index = oi +1;
+				oe.forEach(function(ie) {
+					$('#box tr:nth-child(' + index + ')').append('<td>' + ie + '</td>');
+					});
+				});
 		break;
 		case 2:
-			$('#box').append('LIVE_TRANSITIONS: ' + dataM[2]);
+			destroy = false;
+			drawGraph(data[3]);
 		break;
 		case 3:
-			drawGraph(dataM[3]);
+			destroy = false;
+			drawGraph(data[4]);
 		break;
 		case 4:
-			drawGraph(dataM[4]);
+			$('#box').append('Live transitions: ' + data[2]);
+			$('#box').append('<br />Places K-bounded: ' + data[5]);
+			$('#box').append('<br />K-bounded network: '); 
+			$('#box').append(data[6] ? '<span class="glyphicon glyphicon-ok"></span>' : '<span class="glyphicon glyphicon-remove"></span>');
+			$('#box').append('<br />Save network: ');
+			$('#box').append(data[7] ? '<span class="glyphicon glyphicon-ok"></span>' : '<span class="glyphicon glyphicon-remove"></span>');
+			$('#box').append('<br />Conservative network: ');
+			$('#box').append(data[8] ? '<span class="glyphicon glyphicon-ok"></span>' : '<span class="glyphicon glyphicon-remove"></span>');
 		break;
-		case 5:
-			$('#box').append('PLACES_K_BOUNDED: ' + dataM[5]);
-		break;
-		case 6:
-			$('#box').append('IS_NETWORK_K_BOUNDED: ' + dataM[6]);
-		break;
-		case 7:
-			$('#box').append('IS_NETWORK_SAFE: ' + dataM[7]);
-		break;
-		case 8:
-			$('#box').append('IS_NETWORK_CONSERVATIVE: ' + dataM[8]);
-		break;
+		default:
+			console.log('ERROR: Unexpected paramether type');
 		}
 	}
-	
-//!draw graph
+
+//dastroy graph
+var destroy;
+
+//draw graph
 function drawGraph(data) {
+	
 	var graph = new joint.dia.Graph;
 	
 	var paper = new joint.dia.Paper({ el: $('#box'), width: windowDim.width, height: 1000, gridSize: 1, model: graph });
@@ -451,35 +479,58 @@ function drawGraph(data) {
 	//hilight root cell
 	graph.getElements()[0].attr({ 'circle': { stroke: '#33DE1D' } });
 	
+	//loops
+	var loops = [];
+	
 	//create graph links
 	data.forEach(function(oe, oi) {
 		if(oi > 0)
-			graph.addCell(new joint.shapes.fsa.Arrow({ source: { id: graph.getElements()[oi].id }, target: { id: graph.getElements()[oe[1]].id }, labels: [{ position: .5, attrs: { text: { text: transArray()[oe[4]%3].prop('name') } } }], smooth: false }));
+			graph.addCell(new joint.shapes.fsa.Arrow({ source: { id: graph.getElements()[oe[1]].id }, target: { id: graph.getElements()[oi].id }, labels: [{ position: .5, attrs: { text: { text: transArray()[oe[4]].prop('name') } } }] }));
 		
 		$.map(oe[3], function(ie, ii) {
-			graph.addCell(new joint.shapes.fsa.Arrow({ source: { id: graph.getElements()[oi].id }, target: { id: graph.getElements()[ii].id }, labels: [{ position: .5, attrs: { text: { text: transArray()[ie%3].prop('name') } } }], smooth: false }));
+			if(oi != ii)
+				graph.addCell(new joint.shapes.fsa.Arrow({ source: { id: graph.getElements()[oi].id }, target: { id: graph.getElements()[ii].id }, labels: [{ position: .3, attrs: { text: { text: transArray()[ie].prop('name') } } }] }));
+			else
+				loops.push([oi, ii, ie]);
 			});
 		});
-
+		
 	//graph force directed layout
-	var graphLayout = new joint.layout.ForceDirected({ graph: graph, width: windowDim.width, height: 1000, gravityCenter: { x: windowDim.width/2, y: 500 }, charge: 2500, linkDistance: 70 });
+	var graphLayout = new joint.layout.ForceDirected({ graph: graph, width: windowDim.width, height: 1000, gravityCenter: { x: windowDim.width/2, y: 500 }, charge: 3000, linkDistance: 70 });
 	
+	//loop links
+	var links = [];
+	
+	//add loop links
+	loops.forEach(function(e) {
+		var link = new joint.shapes.fsa.Arrow({ source: { id: graph.getElements()[e[0]].id }, target: { id: graph.getElements()[e[1]].id }, labels: [{ position: .3, attrs: { text: { text: transArray()[e[2]].prop('name') } } }] });
+		graph.addCell(link);
+		links.push(link);
+		});
+
 	graphLayout.start();
 	
+	dupa=graph;
 	function forceLayout() {
+		if(destroy)
+			return 0;
+		links.forEach(function(e) {
+			var cell = graph.getCell(e.prop('source'));
+			e.set('vertices', [{ x: cell.x - 10, y: cell.y - 60 }, { x: cell.x + 30, y: cell.y - 60 }]);
+			});
 		joint.util.nextFrame(forceLayout);
 		graphLayout.step();
 		}
 		
-	//forceLayout();
+	forceLayout();
 	}
 
 //close overlay
-$('#close').click(function() { $('#overlay').fadeOut(); $('#box').empty(); });
+$('#close').click(function() { $('#overlay').fadeOut(); destroy = true; $('#box').empty(); });
 
 //application onload
 $(function() {
 	updatePanel();
 	$('#overlay').hide();
 	$('#simulation').trigger('click');
-	});
+	});      
