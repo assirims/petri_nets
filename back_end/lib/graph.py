@@ -40,5 +40,5 @@ class Graph(object):
         return [token for token in places_ids_and_tokens.values()]
 
     @abstractmethod
-    def get_graph(self):
+    def get_graph(self,parsed_inf=False):
         pass

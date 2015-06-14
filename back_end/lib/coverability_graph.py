@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from copy import deepcopy
 from lib.graph import Graph
 from lib.helper import Helper
@@ -78,5 +79,12 @@ class CoverabilityGraph(Graph):
                             network_state[i] = float("inf")
                     break
 
-    def get_graph(self):
-        return self._create_coverability_graph()
+    def get_graph(self, parsed_inf=False):
+        coverability_graph = self._create_coverability_graph()
+        if parsed_inf:
+            for state in coverability_graph:
+                for index, token in enumerate(state[2]):
+                    if token == float("inf"):
+                        state[2][index] = "∞"
+
+        return coverability_graph

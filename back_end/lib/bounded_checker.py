@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from lib.exceptions import EmptyStatesListError
 
 
@@ -18,8 +19,14 @@ class BoundedChecker(object):
         except IndexError:
             raise EmptyStatesListError()
 
-    def get_places_k_bounded(self):
-        return self.places_k_bounded
+    def get_places_k_bounded(self, parsed_inf=False):
+        places_k_bounded = self.places_k_bounded
+        if parsed_inf:
+            for index, bounded in enumerate(places_k_bounded):
+                if bounded == float("inf"):
+                    places_k_bounded[index] = "∞"
+
+        return places_k_bounded
 
     def is_network_k_bounded(self):
         return self.places_k_bounded == [self.places_k_bounded[0] for token in xrange(len(self.places_k_bounded))] \

@@ -112,16 +112,16 @@ class Main(object):
 
     def __get_reachability_graph(self):
         reachability_graph = ReachabilityGraph(self.transitions)
-        return reachability_graph.get_graph()
+        return reachability_graph.get_graph(parsed_inf=True)
 
     def __get_coverability_graph(self):
         coverability_graph = CoverabilityGraph(self.transitions)
-        return coverability_graph.get_graph()
+        return coverability_graph.get_graph(parsed_inf=True)
 
     def __get_places_k_bounded(self):
         states_list = CoverabilityGraph(self.transitions).get_graph()
         bounded_checker = BoundedChecker(states_list)
-        return bounded_checker.get_places_k_bounded()
+        return bounded_checker.get_places_k_bounded(parsed_inf=True)
 
     def __is_network_k_bounded(self):
         states_list = CoverabilityGraph(self.transitions).get_graph()

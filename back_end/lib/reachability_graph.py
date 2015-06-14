@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from copy import deepcopy
 from lib.graph import Graph
 from lib.helper import Helper
@@ -40,5 +41,12 @@ class ReachabilityGraph(Graph):
 
         return states_list
 
-    def get_graph(self):
+    def get_graph(self, parsed_inf=False):
+        reachability_graph = self._create_reachability_graph()
+        if parsed_inf:
+            for state in reachability_graph:
+                for index, token in enumerate(state[2]):
+                    if token == float("inf"):
+                        state[2][index] = "∞"
+
         return self._create_reachability_graph()
