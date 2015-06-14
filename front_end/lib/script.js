@@ -25,19 +25,14 @@ var pn = joint.shapes.pn;
 
 //create model places
 petrinet.addCell([
-	new pn.Place({ position: { x: 140, y: 50 }, attrs: { '.label': { text: 'p1' } }, name: 'p1', tokens: 1 }),
-	new pn.Place({ position: { x: 140, y: 260 }, attrs: { '.label': { text: 'p2' } }, name: 'p2', tokens: 2 }),
-	new pn.Place({ position: { x: 350, y: 160 }, attrs: { '.label': { text: 'p3' } }, name: 'p3', tokens: 12 }),
-	new pn.Place({ position: { x: 550, y: 50 }, attrs: { '.label': { text: 'p4' } }, name: 'p4', tokens: 1 }),
-	new pn.Place({ position: { x: 560, y: 260 }, attrs: { '.label': { text: 'p5' } }, name: 'p5', tokens: 3 })
+	new pn.Place({ position: { x: 240, y: 150 }, attrs: { '.label': { text: 'p1' } }, name: 'p1', tokens: 1 }),
+	new pn.Place({ position: { x: 240, y: 360 }, attrs: { '.label': { text: 'p2' } }, name: 'p2', tokens: 2 })
 	]);
 
 //create model transitions
 petrinet.addCell([
-	new pn.Transition({ position: { x: 50, y: 160 }, attrs: { '.label': { text: 't1 [1]' } }, name: 't1', priority: 1 }),
-	new pn.Transition({ position: { x: 270, y: 160 }, attrs: { '.label': { text: 't2 [1]' } }, name: 't2', priority: 1 }),
-	new pn.Transition({ position: { x: 470, y: 160 }, attrs: { '.label': { text: 't3 [1]' } }, name: 't3', priority: 1 }),
-	new pn.Transition({ position: { x: 680, y: 160 }, attrs: { '.label': { text: 't4 [1]' } }, name: 't4', priority: 1 })
+	new pn.Transition({ position: { x: 150, y: 260 }, attrs: { '.label': { text: 't1 [1]' } }, name: 't1', priority: 1 }),
+	new pn.Transition({ position: { x: 370, y: 260 }, attrs: { '.label': { text: 't2 [1]' } }, name: 't2', priority: 1 })
 	]);
 	
 //create model links
@@ -45,13 +40,7 @@ petrinet.addCell([
 	new pn.Link({ source: { id: transArray()[0].id, selector: '.root' }, target: { id: placeArray()[0].id, selector: '.root' }, labels: [{ position: .5, attrs: { text: { text: 1 } } }], direction: 1 ,weight: 1 }),
 	new pn.Link({ source: { id: placeArray()[0].id, selector: '.root' }, target: { id: transArray()[1].id, selector: '.root' }, labels: [{ position: .5, attrs: { text: { text: 1 } } }], direction: 0 ,weight: 1 }),
 	new pn.Link({ source: { id: transArray()[1].id, selector: '.root' }, target: { id: placeArray()[1].id, selector: '.root' }, labels: [{ position: .5, attrs: { text: { text: 1 } } }], direction: 1 ,weight: 1 }),
-	new pn.Link({ source: { id: placeArray()[1].id, selector: '.root' }, target: { id: transArray()[0].id, selector: '.root' }, labels: [{ position: .5, attrs: { text: { text: 1 } } }], direction: 0, weight: 1 }),
-	new pn.Link({ source: { id: transArray()[1].id, selector: '.root' }, target: { id: placeArray()[2].id, selector: '.root' }, labels: [{ position: .5, attrs: { text: { text: 1 } } }], direction: 1, weight: 1 }),
-	new pn.Link({ source: { id: placeArray()[2].id, selector: '.root' }, target: { id: transArray()[2].id, selector: '.root' }, labels: [{ position: .5, attrs: { text: { text: 1 } } }], direction: 0, weight: 1 }),
-	new pn.Link({ source: { id: transArray()[2].id, selector: '.root' }, target: { id: placeArray()[3].id, selector: '.root' }, labels: [{ position: .5, attrs: { text: { text: 1 } } }], direction: 1, weight: 1 }),
-	new pn.Link({ source: { id: placeArray()[3].id, selector: '.root' }, target: { id: transArray()[3].id, selector: '.root' }, labels: [{ position: .5, attrs: { text: { text: 1 } } }], direction: 0, weight: 1 }),
-	new pn.Link({ source: { id: transArray()[3].id, selector: '.root' }, target: { id: placeArray()[4].id, selector: '.root' }, labels: [{ position: .5, attrs: { text: { text: 1 } } }], direction: 1, weight: 1 }),
-	new pn.Link({ source: { id: placeArray()[4].id, selector: '.root' }, target: { id: transArray()[2].id, selector: '.root' }, labels: [{ position: .5, attrs: { text: { text: 1 } } }], direction: 0, weight: 1 })
+	new pn.Link({ source: { id: placeArray()[1].id, selector: '.root' }, target: { id: transArray()[0].id, selector: '.root' }, labels: [{ position: .5, attrs: { text: { text: 1 } } }], direction: 0, weight: 1 })
 	]);
 
 //add place
@@ -216,9 +205,9 @@ $('#build').click(function() {
 
 //alert message
 function alertMsg(msg) {
-	$('#info').html(msg);
-	$('#info').fadeIn('slow');
-	setTimeout(function() { $('#info').fadeOut('slow'); }, 4000);
+	$('.info').html(msg);
+	$('.info').fadeIn('slow');
+	setTimeout(function() { $('.info').fadeOut('slow'); }, 4000);
 	}
 
 //update panel
@@ -343,22 +332,20 @@ socket = new WebSocket("ws://localhost:8888/websocket");
 socket.onmessage = function(e) {
 	var data = JSON.parse(e.data);
     switch(data.type) {
-        case 1:
-            break;
         case 2:
 		case 6:
             deserializeGraph(data.data);
-            break;
+        break;
 		case 3:
+		case 4:
 			displayParams(data.data);
-		    break;
+		break;
 		case 5:
 			availableTrans(data.data);
-		    break;
+		break;
 		default:
-			console.log('ERROR: Unexpected paramether type');
+			console.log('ERROR: Unexpected response data');
         }
-    console.log(e.data);
 	};
 
 //simulation
@@ -377,6 +364,7 @@ function sendGraph() {
 function stepSimulation() {
 	socket.send('{ "type": 2, "data": "" }');
 	socket.send('{ "type" : 5, "data" :"" }');
+	$('#fire-trans > optgroup').empty();
 	transArray().forEach(function(e) {
 		e.attr({ 'rect': { fill: '#000000' } });
 		});
@@ -423,6 +411,35 @@ function getParams() {
 	
 $('button[data-type]').click(function() { paramtype = $(this).data('type'); getParams(); });
 
+//vector conservative
+function vectorConservative() {
+	var vector = $('#weight-vector').val().trim();
+	var splited = vector.split(',');
+	
+	if(vector && splited.length == placeArray().length) {
+		var flag = true;
+		var array = [];
+		splited.forEach(function(e) {
+			array.push(parseInt(e));
+			if(!Number.isInteger(parseInt(e)))
+				flag = false;
+				});
+		if(flag) {
+			socket.send('{ "type" : 4 , "data" : "'+ array +'" }');
+			}
+		else {
+			console.log('ERROR: Vector should contains only integers');
+			alertMsg('Vector should contains only integers');
+			}
+		}
+	else {
+		console.log('ERROR: Invalid vector data');
+		alertMsg('Invalid vector data');
+		}
+	}
+	
+$('#vector-conservative').click(function() { paramtype = 5; vectorConservative(); });
+
 //display graph parameters
 function displayParams(data) {
 	$('#overlay').fadeIn();
@@ -447,7 +464,7 @@ function displayParams(data) {
 		break;
 		case 4:
 			$('#box').append('Live transitions: ' + data[2]);
-			$('#box').append('Transitions liveness: ' + data[10]);
+			$('#box').append('<br />Transitions liveness: ' + data[10]);
 			$('#box').append('<br />Places K-bounded: ' + data[5]);
 			$('#box').append('<br />K-bounded network: '); 
 			$('#box').append(data[6] ? '<span class="glyphicon glyphicon-ok"></span>' : '<span class="glyphicon glyphicon-remove"></span>');
@@ -459,6 +476,10 @@ function displayParams(data) {
 			$('#box').append(data[9] ? '<span class="glyphicon glyphicon-ok"></span>' : '<span class="glyphicon glyphicon-remove"></span>');
 			$('#box').append('<br />Reversible network: ');
 			$('#box').append(data[11] ? '<span class="glyphicon glyphicon-ok"></span>' : '<span class="glyphicon glyphicon-remove"></span>');
+		break;
+		case 5:
+			$('#box').append('Vector conservative: ');
+			$('#box').append(data ? '<span class="glyphicon glyphicon-ok"></span>' : '<span class="glyphicon glyphicon-remove"></span>');
 		break;
 		default:
 			console.log('ERROR: Unexpected paramether type');
