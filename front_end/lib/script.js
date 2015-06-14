@@ -339,12 +339,9 @@ $('#load-graph').change(loadFromFile);
 //web socket connection
 socket = new WebSocket("ws://localhost:8888/websocket");
 
-//!response handler
+//response handler
 socket.onmessage = function(e) {
-
-    // temporary fix - think about better solution
-    try {
-    var data = JSON.parse(e.data);
+	var data = JSON.parse(e.data);
     switch(data.type) {
         case 2:
 		case 6:
@@ -356,9 +353,9 @@ socket.onmessage = function(e) {
 		case 5:
 			availableTrans(data.data);
 		break;
+		default:
+			console.log('ERROR: Unexpected paramether type');
         }
-    } catch (err) {}
-	console.log(e.data);
 	};
 
 //simulation
@@ -376,6 +373,10 @@ function sendGraph() {
 //simulation step
 function stepSimulation() {
 	socket.send('{ "type": 2, "data": "" }');
+	socket.send('{ "type" : 5, "data" :"" }');
+	transArray().forEach(function(e) {
+		e.attr({ 'rect': { fill: '#000000' } });
+		});
 	}
 
 //list available transitions
@@ -396,13 +397,7 @@ $('#fire-trans > optgroup').click(function(e) {
 		});
 	});
 	
-$('#simulation-step').click(function() {
-	stepSimulation();
-	socket.send('{ "type" : 5, "data" :"" }');
-	transArray().forEach(function(e) {
-		e.attr({ 'rect': { fill: '#000000' } });
-		});
-	});
+$('#simulation-step').click(stepSimulation);
 
 //start simulation
 function startSimulation() {
@@ -455,6 +450,7 @@ function displayParams(data) {
 		break;
 		case 4:
 			$('#box').append('Live transitions: ' + data[2]);
+			$('#box').append('Transitions liveness: ' + data[10]);
 			$('#box').append('<br />Places K-bounded: ' + data[5]);
 			$('#box').append('<br />K-bounded network: '); 
 			$('#box').append(data[6] ? '<span class="glyphicon glyphicon-ok"></span>' : '<span class="glyphicon glyphicon-remove"></span>');
@@ -462,6 +458,10 @@ function displayParams(data) {
 			$('#box').append(data[7] ? '<span class="glyphicon glyphicon-ok"></span>' : '<span class="glyphicon glyphicon-remove"></span>');
 			$('#box').append('<br />Conservative network: ');
 			$('#box').append(data[8] ? '<span class="glyphicon glyphicon-ok"></span>' : '<span class="glyphicon glyphicon-remove"></span>');
+			$('#box').append('<br />Live network: ');
+			$('#box').append(data[9] ? '<span class="glyphicon glyphicon-ok"></span>' : '<span class="glyphicon glyphicon-remove"></span>');
+			$('#box').append('<br />Reversible network: ');
+			$('#box').append(data[11] ? '<span class="glyphicon glyphicon-ok"></span>' : '<span class="glyphicon glyphicon-remove"></span>');
 		break;
 		default:
 			console.log('ERROR: Unexpected paramether type');
@@ -517,7 +517,6 @@ function drawGraph(data) {
 
 	graphLayout.start();
 	
-	dupa=graph;
 	function forceLayout() {
 		if(destroy)
 			return 0;
