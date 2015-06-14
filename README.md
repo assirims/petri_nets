@@ -30,6 +30,9 @@ Run server:
 $ python server.py
 ```
 
+Run client
+http://localhost:8888
+
 ### Microsoft Windows installation guide:
 
 1. Download .msi file from https://www.python.org/downloads/release/python-279/ and install Python 2.7.9
