@@ -346,7 +346,7 @@ socket.onmessage = function(e) {
     try {
     var data = JSON.parse(e.data);
     switch(data.type) {
-        case 2:
+        case 2, 6:
             deserializeGraph(data.data);
         break;
 		case 3:
