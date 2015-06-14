@@ -343,19 +343,22 @@ socket = new WebSocket("ws://localhost:8888/websocket");
 socket.onmessage = function(e) {
 	var data = JSON.parse(e.data);
     switch(data.type) {
+        case 1:
+            break;
         case 2:
 		case 6:
             deserializeGraph(data.data);
-        break;
+            break;
 		case 3:
 			displayParams(data.data);
-		break;
+		    break;
 		case 5:
 			availableTrans(data.data);
-		break;
+		    break;
 		default:
 			console.log('ERROR: Unexpected paramether type');
         }
+    console.log(e.data);
 	};
 
 //simulation
