@@ -39,7 +39,7 @@ class Server(tornado.websocket.WebSocketHandler):
                 return self.write_message(json.dumps({'error': 'Network is empty. Please send network parameters first.'}))
         elif action_type is RequestType.VECTOR_NETWORK_CONSERVATIVE:
             try:
-                return self.write_message(self.main.is_network_vector_conservative(receive_data))
+                return self.write_message(self.main.is_network_vector_conservative(ast.literal_eval(receive_data)))
             except AttributeError:
                 return self.write_message(json.dumps({'error': 'Network is empty. Please send network parameters first.'}))
         elif action_type is RequestType.LIVE_TRANSITIONS:

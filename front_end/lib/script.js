@@ -332,6 +332,8 @@ socket = new WebSocket("ws://localhost:8888/websocket");
 socket.onmessage = function(e) {
 	var data = JSON.parse(e.data);
     switch(data.type) {
+        case 1:
+            break;
         case 2:
 		case 6:
             deserializeGraph(data.data);
@@ -346,6 +348,7 @@ socket.onmessage = function(e) {
 		default:
 			console.log('ERROR: Unexpected response data');
         }
+        console.log(e.data);
 	};
 
 //simulation
@@ -425,7 +428,7 @@ function vectorConservative() {
 				flag = false;
 				});
 		if(flag) {
-			socket.send('{ "type" : 4 , "data" : "'+ array +'" }');
+			socket.send('{ "type" : 4 , "data" : "['+ array +']" }');
 			}
 		else {
 			console.log('ERROR: Vector should contains only integers');
